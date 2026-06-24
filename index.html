@@ -979,6 +979,8 @@ function loadZXing() {
 
 function startZXingScan() {
   const video = document.getElementById('camera-video');
+  const canvas = document.getElementById('camera-canvas');
+  const ctx = canvas.getContext('2d');
   const banner = document.getElementById('camera-result-banner');
   try {
     const hints = new Map();
@@ -991,12 +993,51 @@ function startZXingScan() {
     ];
     hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
     hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-    zxingReader = new ZXing.BrowserMultiFormatReader(hints, 300);
+    zxingReader = new ZXing.BrowserMultiFormatReader(hints);
     scanning = true;
-    zxingReader.decodeFromVideoElement(video, (result, err) => {
-      if (!scanning) return;
-      if (result) {
-        const barcode = result.getText().trim();
-        scanning = false;
-        banner.textContent = '✓ 已掃描：' + barcode;
-  
+    banner.textContent = '📷 對準條碼掃描中...';
+    banner.style.display = 'block';
+
+    function scanFrame() {
+      if (!scanning || !cameraStream) return;
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+        requestAnimationFrame(scanFrame); return;
+      }
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      try {
+        const luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
+        const binarizer = new ZXing.HybridBinarizer(luminanceSource);
+        const binaryBitmap = new ZXing.BinaryBitmap(binarizer);
+        const result = zxingReader.decode(binaryBitmap);
+        if (result) {
+          const barcode = result.getText().trim();
+          scanning = false;
+          banner.textContent = '✓ 已掃描：' + barcode;
+          document.getElementById('barcode-field').value = barcode;
+          addProduct();
+          setTimeout(() => {
+            banner.textContent = '📷 對準條碼掃描中...';
+            if (cameraStream) { scanning = true; requestAnimationFrame(scanFrame); }
+          }, 1500);
+        }
+      } catch(e) {
+        // NotFoundException 是正常的（還沒偵測到條碼），繼續掃
+      }
+      if (scanning) requestAnimationFrame(scanFrame);
+    }
+
+    video.addEventListener('loadeddata', () => { requestAnimationFrame(scanFrame); }, { once: true });
+    if (video.readyState >= 2) requestAnimationFrame(scanFrame);
+
+  } catch(e) {
+    banner.textContent = '掃碼啟動失敗：' + e.message;
+    banner.style.display = 'block';
+  }
+}
+
+setScanMode('camera');
+</script>
+</body>
+</html>
