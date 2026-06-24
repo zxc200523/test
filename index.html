@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>退貨掃碼系統</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f4;
+  --bg-tertiary: #eeede8;
+  --text-primary: #1a1a19;
+  --text-secondary: #6b6b68;
+  --border-light: rgba(0,0,0,0.12);
+  --border-mid: rgba(0,0,0,0.22);
+  --purple-bg: #EEEDFE;
+  --purple-text: #3C3489;
+  --purple-btn: #534AB7;
+  --purple-btn-hover: #3C3489;
+  --teal-bg: #E1F5EE;
+  --teal-text: #085041;
+  --amber-bg: #FAEEDA;
+  --amber-text: #633806;
+  --red-bg: #FCEBEB;
+  --red-text: #791F1F;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1e1e1c;
+    --bg-secondary: #282826;
+    --bg-tertiary: #323230;
+    --text-primary: #f0efea;
+    --text-secondary: #9e9e98;
+    --border-light: rgba(255,255,255,0.1);
+    --border-mid: rgba(255,255,255,0.2);
+    --purple-bg: #26215C;
+    --purple-text: #CECBF6;
+    --purple-btn: #7F77DD;
+    --purple-btn-hover: #AFA9EC;
+    --teal-bg: #04342C;
+    --teal-text: #9FE1CB;
+    --amber-bg: #412402;
+    --amber-text: #FAC775;
+    --red-bg: #501313;
+    --red-text: #F7C1C1;
+  }
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-primary);
+  border: 0.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+}
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-title { font-size: 16px; font-weight: 500; }
+.user-badge { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--purple-bg); color: var(--purple-text);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 500; flex-shrink: 0;
+}
+.role-tag {
+  font-size: 11px; padding: 2px 7px;
+  border-radius: var(--radius-md);
+  background: var(--purple-bg); color: var(--purple-text);
+}
+
+/* Login screen */
+#login-screen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 1rem;
+}
+.login-card {
+  background: var(--bg-primary);
+  border: 0.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  width: 100%; max-width: 380px;
+  box-shadow: var(--shadow);
+}
+.login-logo {
+  text-align: center; margin-bottom: 1.5rem;
+}
+.login-logo i { font-size: 40px; color: var(--purple-btn); }
+.login-logo h1 { font-size: 18px; font-weight: 500; margin-top: 8px; }
+.login-logo p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+.login-field { margin-bottom: 12px; }
+.login-field label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+.login-field input { width: 100%; }
+.login-btn {
+  width: 100%; padding: 10px;
+  background: var(--purple-btn); color: #fff;
+  border: none; border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  margin-top: 8px;
+}
+.login-btn:hover { background: var(--purple-btn-hover); }
+.login-error {
+  font-size: 12px; color: var(--red-text);
+  background: var(--red-bg);
+  padding: 6px 10px; border-radius: var(--radius-md);
+  margin-top: 8px; display: none;
+}
+
+/* Tabs */
+.tabs {
+  display: flex; gap: 8px; margin-bottom: 1rem;
+  overflow-x: auto; padding-bottom: 2px;
+}
+.tab {
+  flex: 1; min-width: 80px; padding: 8px 4px;
+  border: 0.5px solid var(--border-light);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  font-size: 13px; color: var(--text-secondary);
+  cursor: pointer; text-align: center; white-space: nowrap;
+}
+.tab.active {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-mid);
+  font-weight: 500;
+}
+.tab:hover:not(.active) { background: var(--bg-primary); }
+
+/* Pages */
+.page { display: none; }
+.page.active { display: block; }
+
+/* Cards */
+.card {
+  background: var(--bg-primary);
+  border: 0.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* Form elements */
+input[type="text"], input[type="password"] {
+  width: 100%; padding: 8px 10px;
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-md);
+  font-size: 14px; background: var(--bg-primary);
+  color: var(--text-primary); outline: none;
+}
+input[type="text"]:focus, input[type="password"]:focus {
+  border-color: var(--purple-btn);
+  box-shadow: 0 0 0 2px rgba(83,74,183,0.15);
+}
+button {
+  padding: 8px 14px;
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px; cursor: pointer;
+}
+button:hover { background: var(--bg-secondary); }
+
+/* Customer */
+.input-row { display: flex; gap: 8px; align-items: center; }
+.input-row input { flex: 1; }
+.customer-result {
+  margin-top: 8px; padding: 8px 10px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  display: none; align-items: center; justify-content: space-between;
+}
+.customer-result.show { display: flex; }
+.tag-teal { font-size: 11px; padding: 2px 8px; border-radius: var(--radius-md); background: var(--teal-bg); color: var(--teal-text); }
+.tag-amber { font-size: 11px; padding: 2px 8px; border-radius: var(--radius-md); background: var(--amber-bg); color: var(--amber-text); }
+.manual-hint { font-size: 12px; color: var(--text-secondary); margin-top: 6px; display: none; }
+.manual-hint a { color: var(--purple-btn); cursor: pointer; }
+
+/* Scan area */
+.scan-area {
+  border: 1.5px dashed var(--border-mid);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem; text-align: center;
+  margin-bottom: 12px; cursor: pointer;
+}
+.scan-area:hover { background: var(--bg-secondary); }
+.scan-icon { font-size: 36px; color: var(--text-secondary); margin-bottom: 6px; }
+.scan-hint { font-size: 13px; color: var(--text-secondary); }
+.barcode-input-row { display: flex; gap: 8px; }
+.barcode-input-row input { flex: 1; font-family: monospace; }
+
+/* Product list */
+.product-list { display: flex; flex-direction: column; gap: 8px; }
+.product-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+}
+.product-info { flex: 1; min-width: 0; }
+.product-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.product-code { font-family: monospace; font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.qty-control { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.qty-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 0.5px solid var(--border-mid);
+  background: var(--bg-primary);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; padding: 0;
+}
+.qty-btn:hover { background: var(--bg-secondary); }
+.qty-num { font-weight: 500; min-width: 28px; text-align: center; }
+.del-btn { color: var(--text-secondary); cursor: pointer; padding: 4px; border: none; background: none; font-size: 16px; border-radius: var(--radius-md); }
+.del-btn:hover { color: #E24B4A; background: var(--red-bg); }
+.empty-list { text-align: center; padding: 2rem 1rem; color: var(--text-secondary); font-size: 13px; }
+
+/* Banners */
+.banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: var(--radius-md);
+  font-size: 13px; margin-bottom: 12px;
+}
+.banner-offline { background: var(--red-bg); color: var(--red-text); display: none; }
+.banner-saved { background: var(--teal-bg); color: var(--teal-text); display: none; }
+
+/* Action buttons */
+.action-row { display: flex; gap: 8px; margin-top: 4px; }
+.btn-save {
+  flex: 1; padding: 11px;
+  background: var(--bg-secondary);
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-md);
+  font-size: 14px; cursor: pointer; color: var(--text-primary);
+}
+.btn-save:hover { background: var(--bg-tertiary); }
+.btn-submit {
+  flex: 2; padding: 11px;
+  background: var(--purple-btn); color: #fff;
+  border: none; border-radius: var(--radius-md);
+  font-size: 14px; font-weight: 500; cursor: pointer;
+}
+.btn-submit:disabled { background: var(--bg-secondary); color: var(--text-secondary); cursor: not-allowed; }
+.btn-submit:not(:disabled):hover { background: var(--purple-btn-hover); }
+
+/* Status badges */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; padding: 3px 8px; border-radius: var(--radius-md);
+  white-space: nowrap;
+}
+.s-draft { background: var(--amber-bg); color: var(--amber-text); }
+.s-sent { background: var(--teal-bg); color: var(--teal-text); }
+.s-pending { background: var(--purple-bg); color: var(--purple-text); }
+
+/* History items */
+.history-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px; font-size: 13px; gap: 8px;
+}
+.history-meta { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
+
+/* Metrics */
+.summary-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.metric {
+  flex: 1; padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+.metric-val { font-size: 22px; font-weight: 500; }
+.metric-lbl { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Draft badge */
+.draft-badge {
+  background: var(--amber-bg); color: var(--amber-text);
+  border-radius: 4px; padding: 0 5px; font-size: 11px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .app { padding: 0.75rem; }
+  .header-title { font-size: 14px; }
+  .summary-row { flex-wrap: wrap; }
+  .metric { min-width: calc(33% - 6px); }
+}
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <i class="ti ti-arrow-back-up"></i>
+      <h1>退貨掃碼系統</h1>
+      <p>請登入以繼續</p>
+    </div>
+    <div class="login-field">
+      <label>帳號</label>
+      <input type="text" id="login-user" placeholder="輸入帳號" onkeydown="if(event.key==='Enter') doLogin()" />
+    </div>
+    <div class="login-field">
+      <label>密碼</label>
+      <input type="password" id="login-pass" placeholder="輸入密碼" onkeydown="if(event.key==='Enter') doLogin()" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">登入</button>
+    <div id="login-error" class="login-error">帳號或密碼錯誤，請重新輸入</div>
+    <p style="font-size:12px; color:var(--text-secondary); margin-top:14px; text-align:center;">
+      測試帳號：admin / admin123　或　warehouse / wh123
+    </p>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="main-app" style="display:none;">
+  <div class="app">
+    <div class="header">
+      <div class="header-left">
+        <i class="ti ti-arrow-back-up" style="font-size:20px; color:var(--text-secondary)" aria-hidden="true"></i>
+        <span class="header-title">退貨掃碼系統</span>
+      </div>
+      <div class="user-badge">
+        <div class="avatar" id="user-avatar">倉</div>
+        <span id="user-name">使用者</span>
+        <span class="role-tag" id="user-role">倉管</span>
+        <button onclick="doLogout()" style="padding:4px 8px; font-size:12px; margin-left:4px;">
+          <i class="ti ti-logout" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="tabs" id="main-tabs">
+      <div class="tab active" onclick="switchTab('scan')"><i class="ti ti-barcode" aria-hidden="true"></i> 建立退貨單</div>
+      <div class="tab" onclick="switchTab('history')"><i class="ti ti-history" aria-hidden="true"></i> 退貨紀錄</div>
+      <div class="tab" onclick="switchTab('drafts')">
+        <i class="ti ti-file" aria-hidden="true"></i> 草稿
+        <span class="draft-badge" id="draft-count">1</span>
+      </div>
+      <div class="tab" id="admin-tab" style="display:none;" onclick="switchTab('admin')">
+        <i class="ti ti-settings" aria-hidden="true"></i> 管理
+      </div>
+    </div>
+
+    <!-- 建立退貨單 -->
+    <div id="page-scan" class="page active">
+      <div class="banner banner-offline" id="offline-banner">
+        <i class="ti ti-wifi-off" aria-hidden="true"></i>
+        目前離線 — 資料已暫存裝置，網路恢復後可送出
+      </div>
+      <div class="banner banner-saved" id="saved-banner">
+        <i class="ti ti-check" aria-hidden="true"></i>
+        草稿已暫存
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-user" aria-hidden="true"></i> 客戶</div>
+        <div class="input-row">
+          <input type="text" id="customer-input" placeholder="輸入客戶名稱或代號搜尋..." oninput="searchCustomer(this.value)" />
+          <button onclick="searchCustomer(document.getElementById('customer-input').value)">
+            <i class="ti ti-search" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div id="customer-result" class="customer-result">
+          <span id="customer-name-display"></span>
+          <span class="tag-teal">已選取</span>
+        </div>
+        <div class="manual-hint" id="manual-hint">
+          找不到客戶？<a onclick="enableManual()">切換手動輸入</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-barcode" aria-hidden="true"></i> 掃描商品</div>
+        <div class="scan-area" onclick="document.getElementById('barcode-field').focus()">
+          <div class="scan-icon"><i class="ti ti-scan" aria-hidden="true"></i></div>
+          <div class="scan-hint">點此啟動掃碼，或使用掃碼槍</div>
+        </div>
+        <div class="barcode-input-row">
+          <input type="text" id="barcode-field" placeholder="條碼（輸入後按 Enter）" onkeydown="if(event.key==='Enter') addProduct()" autocomplete="off" />
+          <button onclick="addProduct()"><i class="ti ti-plus" aria-hidden="true"></i> 加入</button>
+        </div>
+        <p style="font-size:11px; color:var(--text-secondary); margin-top:6px;">
+          測試條碼：1234567890 / 9876543210 / 5555555555 / 1111111111
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-package" aria-hidden="true"></i> 退貨清單</div>
+        <div id="product-list" class="product-list">
+          <div class="empty-list">
+            <i class="ti ti-inbox" style="font-size:32px; display:block; margin-bottom:8px;" aria-hidden="true"></i>
+            尚未掃描任何商品
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-save" onclick="saveDraft()">
+          <i class="ti ti-device-floppy" aria-hidden="true"></i> 暫存草稿
+        </button>
+        <button class="btn-submit" id="submit-btn" disabled onclick="submitOrder()">
+          <i class="ti ti-send" aria-hidden="true"></i> 確認送出 ERP
+        </button>
+      </div>
+    </div>
+
+    <!-- 退貨紀錄 -->
+    <div id="page-history" class="page">
+      <div class="summary-row">
+        <div class="metric"><div class="metric-val">12</div><div class="metric-lbl">今日退貨單</div></div>
+        <div class="metric"><div class="metric-val">3</div><div class="metric-lbl">處理中</div></div>
+        <div class="metric"><div class="metric-val">9</div><div class="metric-lbl">已完成</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-history" aria-hidden="true"></i> 退貨單紀錄</div>
+        <div id="history-list"></div>
+      </div>
+    </div>
+
+    <!-- 草稿 -->
+    <div id="page-drafts" class="page">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-file" aria-hidden="true"></i> 暫存草稿</div>
+        <div id="drafts-list"></div>
+      </div>
+    </div>
+
+    <!-- 管理（僅管理員可見） -->
+    <div id="page-admin" class="page">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-users" aria-hidden="true"></i> 帳號管理</div>
+        <div style="display:flex; flex-direction:column; gap:8px;" id="user-list"></div>
+        <div style="margin-top:12px; padding-top:12px; border-top:0.5px solid var(--border-light);">
+          <div class="card-title">新增帳號</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <input type="text" id="new-username" placeholder="帳號" style="flex:1; min-width:100px;" />
+            <input type="password" id="new-password" placeholder="密碼" style="flex:1; min-width:100px;" />
+            <select id="new-role" style="padding:8px; border:0.5px solid var(--border-mid); border-radius:var(--radius-md); background:var(--bg-primary); color:var(--text-primary); font-size:14px;">
+              <option value="倉管">倉管</option>
+              <option value="管理員">管理員</option>
+            </select>
+            <button onclick="addUser()" style="background:var(--purple-btn); color:#fff; border:none;">
+              <i class="ti ti-plus" aria-hidden="true"></i> 新增
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> 系統統計</div>
+        <div class="summary-row">
+          <div class="metric"><div class="metric-val">47</div><div class="metric-lbl">本週退貨單</div></div>
+          <div class="metric"><div class="metric-val">3</div><div class="metric-lbl">使用人數</div></div>
+          <div class="metric"><div class="metric-val">2</div><div class="metric-lbl">草稿未送</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const mockCustomers = [
+  '大潤貿易有限公司','信達實業股份有限公司','宏泰物流','東方電子','南洋企業','台灣電商集團','新北倉儲服務'
+];
+const mockProducts = {
+  '1234567890': { name: '無線滑鼠 M200', code: 'M200-BLK' },
+  '9876543210': { name: '機械鍵盤 K500', code: 'K500-RGB' },
+  '5555555555': { name: 'USB 集線器 H4', code: 'H4-USB' },
+  '1111111111': { name: '螢幕支架 S Pro', code: 'S-PRO-SLV' },
+};
+
+let users = [
+  { username: 'admin', password: 'admin123', name: '系統管理員', role: '管理員' },
+  { username: 'warehouse', password: 'wh123', name: '王大明', role: '倉管' },
+  { username: 'li', password: 'li123', name: '李小華', role: '倉管' },
+];
+
+let currentUser = null;
+let products = [];
+let selectedCustomer = '';
+let drafts = [
+  { id: 1, customer: '大潤貿易有限公司', items: [{name:'無線滑鼠 M200',code:'M200-BLK',qty:3},{name:'USB 集線器 H4',code:'H4-USB',qty:1}], savedAt: '2024/06/24 10:05', savedBy: '王大明' }
+];
+let history = [
+  { id: 'RET-20240624-011', customer: '大潤貿易有限公司', items: 3, status: 'sent', time: '2024/06/24 14:32', user: '王大明' },
+  { id: 'RET-20240624-010', customer: '信達實業股份有限公司', items: 5, status: 'pending', time: '2024/06/24 11:15', user: '王大明' },
+  { id: 'RET-20240623-008', customer: '宏泰物流', items: 2, status: 'sent', time: '2024/06/23 16:48', user: '李小華' },
+  { id: 'RET-20240623-007', customer: '東方電子', items: 1, status: 'sent', time: '2024/06/23 09:20', user: '王大明' },
+];
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const user = users.find(x => x.username === u && x.password === p);
+  if (!user) {
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+  currentUser = user;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+  document.getElementById('user-avatar').textContent = user.name.charAt(0);
+  document.getElementById('user-name').textContent = user.name;
+  document.getElementById('user-role').textContent = user.role;
+  if (user.role === '管理員') {
+    document.getElementById('admin-tab').style.display = '';
+  }
+  renderHistory();
+  renderDrafts();
+  renderUserList();
+}
+
+function doLogout() {
+  currentUser = null;
+  products = []; selectedCustomer = '';
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('admin-tab').style.display = 'none';
+  switchTab('scan');
+  resetScanForm();
+}
+
+function switchTab(tab) {
+  const tabs = ['scan','history','drafts','admin'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const idx = tabs.indexOf(tab);
+  const visibleTabs = document.querySelectorAll('.tab');
+  const adminShown = document.getElementById('admin-tab').style.display !== 'none';
+  const tabMap = adminShown ? ['scan','history','drafts','admin'] : ['scan','history','drafts'];
+  const vi = tabMap.indexOf(tab);
+  if (vi >= 0 && visibleTabs[vi]) visibleTabs[vi].classList.add('active');
+  const pg = document.getElementById('page-' + tab);
+  if (pg) pg.classList.add('active');
+}
+
+function searchCustomer(val) {
+  const result = document.getElementById('customer-result');
+  const nameEl = document.getElementById('customer-name-display');
+  const hint = document.getElementById('manual-hint');
+  if (!val || val.length < 1) {
+    result.classList.remove('show'); hint.style.display = 'none';
+    selectedCustomer = ''; checkReady(); return;
+  }
+  const found = mockCustomers.find(c => c.includes(val));
+  if (found) {
+    nameEl.textContent = found;
+    result.classList.add('show');
+    selectedCustomer = found;
+    hint.style.display = 'none';
+  } else {
+    result.classList.remove('show');
+    hint.style.display = 'block';
+    selectedCustomer = '';
+  }
+  checkReady();
+}
+
+function enableManual() {
+  const val = document.getElementById('customer-input').value.trim();
+  if (!val) return;
+  selectedCustomer = val;
+  document.getElementById('customer-name-display').textContent = val + '（手動輸入）';
+  const result = document.getElementById('customer-result');
+  result.innerHTML = '<span>' + val + ' <span class="tag-amber">手動</span></span>';
+  result.classList.add('show');
+  document.getElementById('manual-hint').style.display = 'none';
+  checkReady();
+}
+
+function addProduct() {
+  const field = document.getElementById('barcode-field');
+  const barcode = field.value.trim();
+  if (!barcode) return;
+  const product = mockProducts[barcode];
+  if (!product) {
+    field.style.borderColor = '#E24B4A';
+    field.value = ''; field.placeholder = '⚠ 條碼不存在，請確認';
+    setTimeout(() => { field.style.borderColor = ''; field.placeholder = '條碼（輸入後按 Enter）'; }, 2000);
+    return;
+  }
+  const existing = products.find(p => p.code === product.code);
+  if (existing) { existing.qty++; }
+  else { products.push({ ...product, qty: 1 }); }
+  field.value = '';
+  renderProducts();
+  checkReady();
+}
+
+function renderProducts() {
+  const list = document.getElementById('product-list');
+  if (products.length === 0) {
+    list.innerHTML = '<div class="empty-list"><i class="ti ti-inbox" style="font-size:32px;display:block;margin-bottom:8px;" aria-hidden="true"></i>尚未掃描任何商品</div>';
+    return;
+  }
+  list.innerHTML = products.map((p, i) => `
+    <div class="product-item">
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-code">${p.code}</div>
+      </div>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
+        <div class="qty-num">${p.qty}</div>
+        <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+      </div>
+      <button class="del-btn" onclick="removeProduct(${i})" aria-label="移除商品">
+        <i class="ti ti-trash" aria-hidden="true"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+function changeQty(i, delta) {
+  products[i].qty = Math.max(1, products[i].qty + delta);
+  renderProducts();
+}
+
+function removeProduct(i) {
+  products.splice(i, 1);
+  renderProducts();
+  checkReady();
+}
+
+function checkReady() {
+  document.getElementById('submit-btn').disabled = !(selectedCustomer && products.length > 0);
+}
+
+function saveDraft() {
+  if (products.length === 0 && !selectedCustomer) return;
+  const draft = {
+    id: Date.now(),
+    customer: selectedCustomer || '（未填客戶）',
+    items: JSON.parse(JSON.stringify(products)),
+    savedAt: new Date().toLocaleString('zh-TW'),
+    savedBy: currentUser ? currentUser.name : ''
+  };
+  drafts.unshift(draft);
+  document.getElementById('draft-count').textContent = drafts.length;
+  renderDrafts();
+  showBanner('saved-banner');
+}
+
+function showBanner(id) {
+  const b = document.getElementById(id);
+  b.style.display = 'flex';
+  setTimeout(() => { b.style.display = 'none'; }, 2200);
+}
+
+function loadDraft(idx) {
+  const draft = drafts[idx];
+  products = JSON.parse(JSON.stringify(draft.items));
+  selectedCustomer = draft.customer;
+  document.getElementById('customer-input').value = draft.customer.replace('（手動輸入）','');
+  document.getElementById('customer-name-display').textContent = draft.customer;
+  document.getElementById('customer-result').classList.add('show');
+  renderProducts();
+  checkReady();
+  switchTab('scan');
+}
+
+function deleteDraft(idx) {
+  drafts.splice(idx, 1);
+  document.getElementById('draft-count').textContent = drafts.length;
+  renderDrafts();
+}
+
+function renderDrafts() {
+  const list = document.getElementById('drafts-list');
+  if (drafts.length === 0) {
+    list.innerHTML = '<div class="empty-list"><i class="ti ti-file-off" style="font-size:28px;display:block;margin-bottom:8px;"></i>沒有草稿</div>';
+    return;
+  }
+  list.innerHTML = drafts.map((d, i) => `
+    <div class="history-item">
+      <div style="flex:1;">
+        <div style="font-weight:500;">${d.customer}</div>
+        <div class="history-meta">${d.items.length} 項商品・${d.savedBy}</div>
+        <div class="history-meta">${d.savedAt}</div>
+      </div>
+      <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+        <button onclick="loadDraft(${i})" style="padding:5px 10px; font-size:12px;">
+          <i class="ti ti-edit" aria-hidden="true"></i> 繼續
+        </button>
+        <button onclick="deleteDraft(${i})" style="padding:5px 8px; font-size:12px; color:var(--red-text); border-color:transparent;">
+          <i class="ti ti-trash" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function submitOrder() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" aria-hidden="true"></i> 送出中...';
+  setTimeout(() => {
+    const newEntry = {
+      id: 'RET-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-0' + (history.length + 1),
+      customer: selectedCustomer,
+      items: products.reduce((s, p) => s + p.qty, 0),
+      status: 'sent',
+      time: new Date().toLocaleString('zh-TW'),
+      user: currentUser ? currentUser.name : ''
+    };
+    history.unshift(newEntry);
+    renderHistory();
+    products = []; selectedCustomer = '';
+    resetScanForm();
+    btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> 已送出 ERP';
+    btn.style.background = '#0F6E56';
+    setTimeout(() => {
+      btn.innerHTML = '<i class="ti ti-send" aria-hidden="true"></i> 確認送出 ERP';
+      btn.style.background = '';
+      btn.disabled = true;
+    }, 2000);
+  }, 1200);
+}
+
+function resetScanForm() {
+  document.getElementById('customer-input').value = '';
+  document.getElementById('customer-result').classList.remove('show');
+  document.getElementById('customer-result').innerHTML = '<span id="customer-name-display"></span><span class="tag-teal">已選取</span>';
+  document.getElementById('manual-hint').style.display = 'none';
+  renderProducts();
+}
+
+const statusLabel = { sent: '已送ERP', pending: '待送出', draft: '草稿' };
+const statusClass = { sent: 's-sent', pending: 's-pending', draft: 's-draft' };
+const statusIcon = { sent: 'ti-check', pending: 'ti-clock', draft: 'ti-file' };
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const show = (currentUser && currentUser.role === '管理員') ? history : history.filter(h => h.user === (currentUser ? currentUser.name : ''));
+  if (show.length === 0) {
+    list.innerHTML = '<div class="empty-list">尚無退貨紀錄</div>'; return;
+  }
+  list.innerHTML = show.map(h => `
+    <div class="history-item">
+      <div style="flex:1; min-width:0;">
+        <div style="font-weight:500;">${h.id}</div>
+        <div class="history-meta">客戶：${h.customer} ・ ${h.items} 項商品・${h.user}</div>
+        <div class="history-meta">${h.time}</div>
+      </div>
+      <span class="status-badge ${statusClass[h.status]}">
+        <i class="ti ${statusIcon[h.status]}" aria-hidden="true"></i> ${statusLabel[h.status]}
+      </span>
+    </div>
+  `).join('');
+}
+
+function renderUserList() {
+  const list = document.getElementById('user-list');
+  if (!list) return;
+  list.innerHTML = users.map((u, i) => `
+    <div class="history-item">
+      <div style="display:flex; align-items:center; gap:10px; flex:1;">
+        <div class="avatar">${u.name.charAt(0)}</div>
+        <div>
+          <div style="font-weight:500;">${u.name}</div>
+          <div class="history-meta">帳號：${u.username} ・ 角色：${u.role}</div>
+        </div>
+      </div>
+      ${i > 0 ? `<button onclick="removeUser(${i})" style="padding:5px 8px; font-size:12px; color:var(--red-text); border-color:transparent;"><i class="ti ti-trash" aria-hidden="true"></i></button>` : ''}
+    </div>
+  `).join('');
+}
+
+function addUser() {
+  const uname = document.getElementById('new-username').value.trim();
+  const pass = document.getElementById('new-password').value.trim();
+  const role = document.getElementById('new-role').value;
+  if (!uname || !pass) return;
+  if (users.find(u => u.username === uname)) { alert('帳號已存在'); return; }
+  users.push({ username: uname, password: pass, name: uname, role });
+  document.getElementById('new-username').value = '';
+  document.getElementById('new-password').value = '';
+  renderUserList();
+}
+
+function removeUser(i) {
+  users.splice(i, 1);
+  renderUserList();
+}
+
+window.addEventListener('online', () => { document.getElementById('offline-banner').style.display = 'none'; });
+window.addEventListener('offline', () => { document.getElementById('offline-banner').style.display = 'flex'; });
+</script>
+</body>
+</html>
