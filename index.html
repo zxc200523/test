@@ -902,9 +902,10 @@ window.addEventListener('online', () => { document.getElementById('offline-banne
 window.addEventListener('offline', () => { document.getElementById('offline-banner').style.display = 'flex'; });
 
 let cameraStream = null;
-let scanInterval = null;
 let scanMode = 'camera';
-let jsQRLoaded = false;
+let zxingReader = null;
+let zxingLoaded = false;
+let scanning = false;
 
 function setScanMode(mode) {
   scanMode = mode;
@@ -926,69 +927,76 @@ function startCamera() {
     alert('此裝置或瀏覽器不支援相機功能，請改用掃碼槍模式');
     setScanMode('gun'); return;
   }
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
-    .then(stream => {
-      cameraStream = stream;
-      const video = document.getElementById('camera-video');
-      video.srcObject = stream;
-      container.style.display = 'block';
-      stopBtn.style.display = 'block';
-      loadJsQR();
-    })
-    .catch(err => {
-      alert('無法開啟相機：' + err.message + '\n請確認已授權相機權限，並使用 HTTPS 連線');
-      setScanMode('gun');
-    });
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+    audio: false
+  })
+  .then(stream => {
+    cameraStream = stream;
+    const video = document.getElementById('camera-video');
+    video.srcObject = stream;
+    container.style.display = 'block';
+    stopBtn.style.display = 'block';
+    loadZXing();
+  })
+  .catch(err => {
+    alert('無法開啟相機：' + err.message + '\n請確認已授權相機權限，並使用 HTTPS 連線（如 GitHub Pages）');
+    setScanMode('gun');
+  });
 }
 
 function stopCamera() {
+  scanning = false;
+  if (zxingReader) {
+    try { zxingReader.reset(); } catch(e) {}
+  }
   if (cameraStream) {
     cameraStream.getTracks().forEach(t => t.stop());
     cameraStream = null;
   }
-  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
   document.getElementById('camera-container').style.display = 'none';
   document.getElementById('stop-camera-btn').style.display = 'none';
 }
 
-function loadJsQR() {
-  if (jsQRLoaded) { startScanLoop(); return; }
+function loadZXing() {
+  if (zxingLoaded && zxingReader) { startZXingScan(); return; }
+  const banner = document.getElementById('camera-result-banner');
+  banner.textContent = '載入掃碼模組中...';
+  banner.style.display = 'block';
   const s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
-  s.onload = () => { jsQRLoaded = true; startScanLoop(); };
-  s.onerror = () => { alert('無法載入掃碼函式庫，請確認網路連線'); };
+  s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js';
+  s.onload = () => {
+    zxingLoaded = true;
+    banner.style.display = 'none';
+    startZXingScan();
+  };
+  s.onerror = () => {
+    banner.textContent = '⚠ 掃碼模組載入失敗，請確認網路連線';
+    banner.style.display = 'block';
+  };
   document.head.appendChild(s);
 }
 
-function startScanLoop() {
-  if (scanInterval) clearInterval(scanInterval);
+function startZXingScan() {
   const video = document.getElementById('camera-video');
-  const canvas = document.getElementById('camera-canvas');
-  const ctx = canvas.getContext('2d');
   const banner = document.getElementById('camera-result-banner');
-  scanInterval = setInterval(() => {
-    if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
-    if (code && code.data) {
-      const barcode = code.data.trim();
-      document.getElementById('barcode-field').value = barcode;
-      addProduct();
-      banner.textContent = '✓ 已掃描：' + barcode;
-      banner.style.display = 'block';
-      clearInterval(scanInterval); scanInterval = null;
-      setTimeout(() => {
-        banner.style.display = 'none';
-        if (cameraStream) startScanLoop();
-      }, 1500);
-    }
-  }, 200);
-}
-
-setScanMode('camera');
-</script>
-</body>
-</html>
+  try {
+    const hints = new Map();
+    const formats = [
+      ZXing.BarcodeFormat.EAN_13,
+      ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.CODE_128,
+      ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.QR_CODE,
+    ];
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+    zxingReader = new ZXing.BrowserMultiFormatReader(hints, 300);
+    scanning = true;
+    zxingReader.decodeFromVideoElement(video, (result, err) => {
+      if (!scanning) return;
+      if (result) {
+        const barcode = result.getText().trim();
+        scanning = false;
+        banner.textContent = '✓ 已掃描：' + barcode;
+  
