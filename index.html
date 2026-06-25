@@ -1207,26 +1207,6 @@ function tryLoadScriptList(urls, idx, onSuccess, onFail) {
 }
 
 setScanMode('camera');
-
-function startCamera() {
-  const container = document.getElementById('camera-container');
-  const stopBtn = document.getElementById('stop-camera-btn');
-  const banner = document.getElementById('camera-result-banner');
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('此裝置或瀏覽器不支援相機功能，請改用掃碼槍模式');
-    setScanMode('gun'); return;
-  }
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
-    audio: false
-  }).then(stream => {
-    cameraStream = stream;
-    const video = document.getElementById('camera-video');
-    video.srcObject = stream;
-    video.style.display = 'block';
-    container.style.display = 'block';
-    stopBtn.style.display = 'block';
-setScanMode('camera');
 </script>
 </body>
 </html>
