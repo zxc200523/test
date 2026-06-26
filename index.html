@@ -933,6 +933,7 @@ function showCameraStatus(msg, isError) {
 }
 
 function startCamera() {
+  // 支援度檢查
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showCameraStatus('此裝置或瀏覽器不支援相機，請改用掃碼槍模式', true);
     return;
@@ -940,6 +941,7 @@ function startCamera() {
 
   showCameraStatus('正在開啟相機…', false);
 
+  // 優先使用後鏡頭，失敗則用任意鏡頭
   const constraints = {
     video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
     audio: false
@@ -952,6 +954,7 @@ function startCamera() {
       const video = document.getElementById('camera-video');
       video.srcObject = stream;
 
+      // 確保 video 真的播放後才顯示
       video.onloadedmetadata = () => {
         video.play().then(() => {
           document.getElementById('camera-container').style.display = 'block';
@@ -959,11 +962,7 @@ function startCamera() {
           showCameraStatus('', false);
           loadZXingAndScan();
         }).catch(err => {
-          console.warn('手動 play() 被阻擋，交給 iOS autoplay 處理:', err);
-          document.getElementById('camera-container').style.display = 'block';
-          document.getElementById('stop-camera-btn').style.display = 'block';
-          showCameraStatus('', false);
-          loadZXingAndScan();
+          showCameraStatus('相機啟動失敗：' + err.message, true);
         });
       };
     })
@@ -987,12 +986,6 @@ function stopCamera() {
     cameraStream.getTracks().forEach(t => t.stop());
     cameraStream = null;
   }
-  
-  const video = document.getElementById('camera-video');
-  if (video) {
-    video.srcObject = null;
-  }
-  
   document.getElementById('camera-container').style.display = 'none';
   document.getElementById('stop-camera-btn').style.display = 'none';
   showCameraStatus('', false);
@@ -1000,6 +993,7 @@ function stopCamera() {
 
 function loadZXingAndScan() {
   showCameraStatus('載入掃碼引擎…', false);
+  // 使用 ZXing-js，支援 EAN、Code128、QR Code 等
   const s = document.createElement('script');
   s.src = 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js';
   s.onload = () => {
@@ -1007,6 +1001,7 @@ function loadZXingAndScan() {
     startZXingScan();
   };
   s.onerror = () => {
+    // ZXing 載入失敗，改用 canvas + jsQR 備援
     showCameraStatus('切換備援掃碼引擎…', false);
     loadJsQRFallback();
   };
@@ -1015,7 +1010,24 @@ function loadZXingAndScan() {
 
 function startZXingScan() {
   try {
-    zxingReader = new window.ZXingBrowser.BrowserMultiFormatReader();
+    const hints = new Map();
+    // 支援的條碼格式
+    const formats = [
+      window.ZXingBrowser.BarcodeFormat?.EAN_13,
+      window.ZXingBrowser.BarcodeFormat?.EAN_8,
+      window.ZXingBrowser.BarcodeFormat?.CODE_128,
+      window.ZXingBrowser.BarcodeFormat?.CODE_39,
+      window.ZXingBrowser.BarcodeFormat?.UPC_A,
+      window.ZXingBrowser.BarcodeFormat?.QR_CODE,
+    ].filter(Boolean);
+
+    if (formats.length) {
+      hints.set(window.ZXingBrowser.DecodeHintType?.POSSIBLE_FORMATS, formats);
+    }
+
+    zxingReader = new window.ZXingBrowser.BrowserMultiFormatReader(hints, {
+      delayBetweenScanAttempts: 200
+    });
 
     const video = document.getElementById('camera-video');
     scanActive = true;
@@ -1026,9 +1038,10 @@ function startZXingScan() {
         const barcode = result.getText().trim();
         onBarcodeScanned(barcode);
       }
+      // err 通常是 NotFoundException（未掃到），可忽略
     });
   } catch(e) {
-    console.error('ZXing 啟動失敗:', e);
+    // ZXing API 異常，fallback
     loadJsQRFallback();
   }
 }
