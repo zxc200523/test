@@ -991,17 +991,20 @@ function stopCamera() {
   showCameraStatus('', false);
 }
 
+let zxingLoaded = false;
+
 function loadZXingAndScan() {
   showCameraStatus('載入掃碼引擎…', false);
-  // 使用 ZXing-js，支援 EAN、Code128、QR Code 等
+  if (zxingLoaded) { startZXingScan(); return; }
   const s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js';
+  // 正確的 UMD 檔名（不是 index.min.js）
+  s.src = 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/zxing-browser.min.js';
   s.onload = () => {
+    zxingLoaded = true;
     showCameraStatus('', false);
     startZXingScan();
   };
   s.onerror = () => {
-    // ZXing 載入失敗，改用 canvas + jsQR 備援
     showCameraStatus('切換備援掃碼引擎…', false);
     loadJsQRFallback();
   };
@@ -1010,38 +1013,30 @@ function loadZXingAndScan() {
 
 function startZXingScan() {
   try {
+    const ZB = window.ZXingBrowser;
+    if (!ZB || !ZB.BrowserMultiFormatReader) throw new Error('ZXing not loaded');
+
+    // BarcodeFormat 數值（enum）：直接用數字避免 optional chaining 取不到的問題
+    // 1=CODABAR, 2=CODE_39, 4=CODE_128, 6=EAN_8, 7=EAN_13, 8=ITF, 11=QR_CODE, 14=UPC_A, 15=UPC_E
     const hints = new Map();
-    // 支援的條碼格式
-    const formats = [
-      window.ZXingBrowser.BarcodeFormat?.EAN_13,
-      window.ZXingBrowser.BarcodeFormat?.EAN_8,
-      window.ZXingBrowser.BarcodeFormat?.CODE_128,
-      window.ZXingBrowser.BarcodeFormat?.CODE_39,
-      window.ZXingBrowser.BarcodeFormat?.UPC_A,
-      window.ZXingBrowser.BarcodeFormat?.QR_CODE,
-    ].filter(Boolean);
+    hints.set(2 /* POSSIBLE_FORMATS */, [1, 2, 4, 6, 7, 8, 11, 14, 15]);
+    hints.set(3 /* TRY_HARDER */, true);
 
-    if (formats.length) {
-      hints.set(window.ZXingBrowser.DecodeHintType?.POSSIBLE_FORMATS, formats);
-    }
-
-    zxingReader = new window.ZXingBrowser.BrowserMultiFormatReader(hints, {
-      delayBetweenScanAttempts: 200
-    });
+    zxingReader = new ZB.BrowserMultiFormatReader(hints, { delayBetweenScanAttempts: 150 });
 
     const video = document.getElementById('camera-video');
     scanActive = true;
 
-    zxingReader.decodeFromVideoElement(video, (result, err) => {
+    // 使用 Continuously（持續掃描），不是 decodeFromVideoElement（單次）
+    zxingReader.decodeFromVideoElementContinuously(video, (result, err) => {
       if (!scanActive) return;
       if (result) {
-        const barcode = result.getText().trim();
-        onBarcodeScanned(barcode);
+        onBarcodeScanned(result.getText().trim());
       }
-      // err 通常是 NotFoundException（未掃到），可忽略
+      // err 通常是 NotFoundException（畫面中未掃到），正常現象，忽略
     });
   } catch(e) {
-    // ZXing API 異常，fallback
+    console.warn('ZXing error:', e);
     loadJsQRFallback();
   }
 }
