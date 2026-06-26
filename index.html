@@ -69,7 +69,6 @@ body {
   min-height: 100vh;
 }
 
-/* Header */
 .header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 16px;
@@ -94,7 +93,6 @@ body {
   background: var(--purple-bg); color: var(--purple-text);
 }
 
-/* Login screen */
 #login-screen {
   display: flex; align-items: center; justify-content: center;
   min-height: 100vh; padding: 1rem;
@@ -107,9 +105,7 @@ body {
   width: 100%; max-width: 380px;
   box-shadow: var(--shadow);
 }
-.login-logo {
-  text-align: center; margin-bottom: 1.5rem;
-}
+.login-logo { text-align: center; margin-bottom: 1.5rem; }
 .login-logo i { font-size: 40px; color: var(--purple-btn); }
 .login-logo h1 { font-size: 18px; font-weight: 500; margin-top: 8px; }
 .login-logo p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
@@ -131,7 +127,6 @@ body {
   margin-top: 8px; display: none;
 }
 
-/* Tabs */
 .tabs {
   display: flex; gap: 8px; margin-bottom: 1rem;
   overflow-x: auto; padding-bottom: 2px;
@@ -152,11 +147,9 @@ body {
 }
 .tab:hover:not(.active) { background: var(--bg-primary); }
 
-/* Pages */
 .page { display: none; }
 .page.active { display: block; }
 
-/* Cards */
 .card {
   background: var(--bg-primary);
   border: 0.5px solid var(--border-light);
@@ -172,7 +165,6 @@ body {
   display: flex; align-items: center; gap: 6px;
 }
 
-/* Form elements */
 input[type="text"], input[type="password"] {
   width: 100%; padding: 8px 10px;
   border: 0.5px solid var(--border-mid);
@@ -194,7 +186,6 @@ button {
 }
 button:hover { background: var(--bg-secondary); }
 
-/* Customer */
 .input-row { display: flex; gap: 8px; align-items: center; }
 .input-row input { flex: 1; }
 .customer-result {
@@ -210,7 +201,6 @@ button:hover { background: var(--bg-secondary); }
 .manual-hint { font-size: 12px; color: var(--text-secondary); margin-top: 6px; display: none; }
 .manual-hint a { color: var(--purple-btn); cursor: pointer; }
 
-/* Scan area */
 .scan-area {
   border: 1.5px dashed var(--border-mid);
   border-radius: var(--radius-lg);
@@ -223,7 +213,6 @@ button:hover { background: var(--bg-secondary); }
 .barcode-input-row { display: flex; gap: 8px; }
 .barcode-input-row input { flex: 1; font-family: monospace; }
 
-/* Camera scanner */
 .scan-mode-btns { display: flex; gap: 8px; margin-bottom: 12px; }
 .scan-mode-btn {
   flex: 1; padding: 10px 8px;
@@ -237,16 +226,17 @@ button:hover { background: var(--bg-secondary); }
   background: var(--purple-bg); color: var(--purple-text);
   border-color: var(--purple-btn); font-weight: 500;
 }
+
 #camera-container {
   position: relative; width: 100%; border-radius: var(--radius-lg);
   overflow: hidden; background: #000; margin-bottom: 12px;
   display: none;
 }
-#camera-container video { width: 100%; display: block; max-height: 260px; object-fit: cover; }
+#camera-container video { width: 100%; display: block; max-height: 280px; object-fit: cover; }
 #camera-container canvas { display: none; }
 .scan-overlay {
   position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  width: 200px; height: 120px; border: 2px solid rgba(255,255,255,0.8);
+  width: 200px; height: 100px; border: 2px solid rgba(255,255,255,0.8);
   border-radius: 8px; pointer-events: none;
 }
 .scan-overlay::before, .scan-overlay::after {
@@ -260,19 +250,31 @@ button:hover { background: var(--bg-secondary); }
   background: rgba(83,74,183,0.8);
   animation: scanline 1.8s ease-in-out infinite;
 }
-@keyframes scanline { 0%,100% { top: 20%; } 50% { top: 75%; } }
+@keyframes scanline { 0%,100% { top: 15%; } 50% { top: 80%; } }
 .camera-result-banner {
   position: absolute; bottom: 0; left: 0; right: 0;
   background: rgba(15,110,86,0.92); color: #fff;
   padding: 8px 12px; font-size: 13px; text-align: center;
   display: none;
 }
-  text-align: center; padding: 10px;
-  font-size: 13px; color: var(--text-secondary);
+.stop-camera-btn {
+  width: 100%; padding: 8px;
+  background: var(--red-bg); color: var(--red-text);
+  border: none; border-radius: var(--radius-md);
+  font-size: 13px; cursor: pointer; margin-bottom: 8px;
   display: none;
 }
 
-/* Product list */
+/* Camera status message */
+.camera-status {
+  text-align: center; padding: 12px;
+  font-size: 13px; color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  display: none;
+}
+
 .product-list { display: flex; flex-direction: column; gap: 8px; }
 .product-item {
   display: flex; align-items: center; gap: 10px;
@@ -298,7 +300,6 @@ button:hover { background: var(--bg-secondary); }
 .del-btn:hover { color: #E24B4A; background: var(--red-bg); }
 .empty-list { text-align: center; padding: 2rem 1rem; color: var(--text-secondary); font-size: 13px; }
 
-/* Banners */
 .banner {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 12px; border-radius: var(--radius-md);
@@ -307,7 +308,6 @@ button:hover { background: var(--bg-secondary); }
 .banner-offline { background: var(--red-bg); color: var(--red-text); display: none; }
 .banner-saved { background: var(--teal-bg); color: var(--teal-text); display: none; }
 
-/* Action buttons */
 .action-row { display: flex; gap: 8px; margin-top: 4px; }
 .btn-save {
   flex: 1; padding: 11px;
@@ -326,7 +326,6 @@ button:hover { background: var(--bg-secondary); }
 .btn-submit:disabled { background: var(--bg-secondary); color: var(--text-secondary); cursor: not-allowed; }
 .btn-submit:not(:disabled):hover { background: var(--purple-btn-hover); }
 
-/* Status badges */
 .status-badge {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 11px; padding: 3px 8px; border-radius: var(--radius-md);
@@ -336,7 +335,6 @@ button:hover { background: var(--bg-secondary); }
 .s-sent { background: var(--teal-bg); color: var(--teal-text); }
 .s-pending { background: var(--purple-bg); color: var(--purple-text); }
 
-/* History items */
 .history-item {
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 12px;
@@ -346,7 +344,6 @@ button:hover { background: var(--bg-secondary); }
 }
 .history-meta { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
 
-/* Metrics */
 .summary-row { display: flex; gap: 8px; margin-bottom: 12px; }
 .metric {
   flex: 1; padding: 12px;
@@ -357,13 +354,11 @@ button:hover { background: var(--bg-secondary); }
 .metric-val { font-size: 22px; font-weight: 500; }
 .metric-lbl { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
 
-/* Draft badge */
 .draft-badge {
   background: var(--amber-bg); color: var(--amber-text);
   border-radius: 4px; padding: 0 5px; font-size: 11px;
 }
 
-/* Responsive */
 @media (max-width: 480px) {
   .app { padding: 0.75rem; }
   .header-title { font-size: 14px; }
@@ -384,15 +379,17 @@ button:hover { background: var(--bg-secondary); }
     </div>
     <div class="login-field">
       <label>帳號</label>
-      <input type="text" id="login-user" placeholder="輸入帳號" />
+      <input type="text" id="login-user" placeholder="輸入帳號" onkeydown="if(event.key==='Enter') doLogin()" />
     </div>
     <div class="login-field">
       <label>密碼</label>
-      <input type="password" id="login-pass" placeholder="輸入密碼" />
+      <input type="password" id="login-pass" placeholder="輸入密碼" onkeydown="if(event.key==='Enter') doLogin()" />
     </div>
-    <button class="login-btn" id="login-btn">登入</button>
+    <button class="login-btn" onclick="doLogin()">登入</button>
     <div id="login-error" class="login-error">帳號或密碼錯誤，請重新輸入</div>
-
+    <p style="font-size:12px; color:var(--text-secondary); margin-top:14px; text-align:center;">
+      測試帳號：admin / admin123　或　warehouse / wh123
+    </p>
   </div>
 </div>
 
@@ -408,20 +405,20 @@ button:hover { background: var(--bg-secondary); }
         <div class="avatar" id="user-avatar">倉</div>
         <span id="user-name">使用者</span>
         <span class="role-tag" id="user-role">倉管</span>
-        <button id="logout-btn" style="padding:4px 8px; font-size:12px; margin-left:4px;">
+        <button onclick="doLogout()" style="padding:4px 8px; font-size:12px; margin-left:4px;">
           <i class="ti ti-logout" aria-hidden="true"></i>
         </button>
       </div>
     </div>
 
     <div class="tabs" id="main-tabs">
-      <div class="tab active" id="tab-scan"><i class="ti ti-barcode" aria-hidden="true"></i> 建立退貨單</div>
-      <div class="tab" id="tab-history"><i class="ti ti-history" aria-hidden="true"></i> 退貨紀錄</div>
-      <div class="tab" id="tab-drafts">
+      <div class="tab active" onclick="switchTab('scan')"><i class="ti ti-barcode" aria-hidden="true"></i> 建立退貨單</div>
+      <div class="tab" onclick="switchTab('history')"><i class="ti ti-history" aria-hidden="true"></i> 退貨紀錄</div>
+      <div class="tab" onclick="switchTab('drafts')">
         <i class="ti ti-file" aria-hidden="true"></i> 草稿
         <span class="draft-badge" id="draft-count">1</span>
       </div>
-      <div class="tab" id="admin-tab" style="display:none;">
+      <div class="tab" id="admin-tab" style="display:none;" onclick="switchTab('admin')">
         <i class="ti ti-settings" aria-hidden="true"></i> 管理
       </div>
     </div>
@@ -440,8 +437,8 @@ button:hover { background: var(--bg-secondary); }
       <div class="card">
         <div class="card-title"><i class="ti ti-user" aria-hidden="true"></i> 客戶</div>
         <div class="input-row">
-          <input type="text" id="customer-input" placeholder="輸入客戶名稱或代號搜尋..." />
-          <button id="customer-search-btn">
+          <input type="text" id="customer-input" placeholder="輸入客戶名稱或代號搜尋..." oninput="searchCustomer(this.value)" />
+          <button onclick="searchCustomer(document.getElementById('customer-input').value)">
             <i class="ti ti-search" aria-hidden="true"></i>
           </button>
         </div>
@@ -450,20 +447,22 @@ button:hover { background: var(--bg-secondary); }
           <span class="tag-teal">已選取</span>
         </div>
         <div class="manual-hint" id="manual-hint">
-          找不到客戶？<a id="manual-link">切換手動輸入</a>
+          找不到客戶？<a onclick="enableManual()">切換手動輸入</a>
         </div>
       </div>
 
       <div class="card">
         <div class="card-title"><i class="ti ti-barcode" aria-hidden="true"></i> 掃描商品</div>
         <div class="scan-mode-btns">
-          <button class="scan-mode-btn active" id="btn-mode-camera">
+          <button class="scan-mode-btn" id="btn-mode-camera" onclick="setScanMode('camera')">
             <i class="ti ti-camera" aria-hidden="true"></i> 鏡頭掃碼
           </button>
-          <button class="scan-mode-btn" id="btn-mode-gun">
+          <button class="scan-mode-btn active" id="btn-mode-gun" onclick="setScanMode('gun')">
             <i class="ti ti-scan" aria-hidden="true"></i> 掃碼槍／手動輸入
           </button>
         </div>
+
+        <div id="camera-status" class="camera-status"></div>
 
         <div id="camera-container">
           <video id="camera-video" playsinline autoplay muted></video>
@@ -471,21 +470,24 @@ button:hover { background: var(--bg-secondary); }
           <div class="scan-overlay"><div class="scan-line"></div></div>
           <div class="camera-result-banner" id="camera-result-banner"></div>
         </div>
-        <button class="stop-camera-btn" id="stop-camera-btn">
+        <button class="stop-camera-btn" id="stop-camera-btn" onclick="stopCamera()">
           <i class="ti ti-camera-off" aria-hidden="true"></i> 關閉鏡頭
         </button>
 
-        <div id="gun-input-area" style="display:none;">
-          <div class="scan-area" id="scan-area-focus">
+        <div id="gun-input-area">
+          <div class="scan-area" onclick="document.getElementById('barcode-field').focus()">
             <div class="scan-icon"><i class="ti ti-scan" aria-hidden="true"></i></div>
             <div class="scan-hint">點此聚焦，再用掃碼槍掃描</div>
           </div>
         </div>
-        <div class="barcode-input-row">
-          <input type="text" id="barcode-field" placeholder="條碼（輸入後按 Enter）" autocomplete="off" />
-          <button id="add-product-btn"><i class="ti ti-plus" aria-hidden="true"></i> 加入</button>
-        </div>
 
+        <div class="barcode-input-row">
+          <input type="text" id="barcode-field" placeholder="條碼（輸入後按 Enter）" onkeydown="if(event.key==='Enter') addProduct()" autocomplete="off" />
+          <button onclick="addProduct()"><i class="ti ti-plus" aria-hidden="true"></i> 加入</button>
+        </div>
+        <p style="font-size:11px; color:var(--text-secondary); margin-top:6px;">
+          測試條碼：1234567890 / 9876543210 / 5555555555 / 1111111111
+        </p>
       </div>
 
       <div class="card">
@@ -499,10 +501,10 @@ button:hover { background: var(--bg-secondary); }
       </div>
 
       <div class="action-row">
-        <button class="btn-save" id="save-draft-btn">
+        <button class="btn-save" onclick="saveDraft()">
           <i class="ti ti-device-floppy" aria-hidden="true"></i> 暫存草稿
         </button>
-        <button class="btn-submit" id="submit-btn" disabled>
+        <button class="btn-submit" id="submit-btn" disabled onclick="submitOrder()">
           <i class="ti ti-send" aria-hidden="true"></i> 確認送出 ERP
         </button>
       </div>
@@ -511,9 +513,9 @@ button:hover { background: var(--bg-secondary); }
     <!-- 退貨紀錄 -->
     <div id="page-history" class="page">
       <div class="summary-row">
-        <div class="metric"><div class="metric-val" id="stat-today">0</div><div class="metric-lbl">今日退貨單</div></div>
-        <div class="metric"><div class="metric-val" id="stat-pending">0</div><div class="metric-lbl">處理中</div></div>
-        <div class="metric"><div class="metric-val" id="stat-done">0</div><div class="metric-lbl">已完成</div></div>
+        <div class="metric"><div class="metric-val">12</div><div class="metric-lbl">今日退貨單</div></div>
+        <div class="metric"><div class="metric-val">3</div><div class="metric-lbl">處理中</div></div>
+        <div class="metric"><div class="metric-val">9</div><div class="metric-lbl">已完成</div></div>
       </div>
       <div class="card">
         <div class="card-title"><i class="ti ti-history" aria-hidden="true"></i> 退貨單紀錄</div>
@@ -543,7 +545,7 @@ button:hover { background: var(--bg-secondary); }
               <option value="倉管">倉管</option>
               <option value="管理員">管理員</option>
             </select>
-            <button id="add-user-btn" style="background:var(--purple-btn); color:#fff; border:none;">
+            <button onclick="addUser()" style="background:var(--purple-btn); color:#fff; border:none;">
               <i class="ti ti-plus" aria-hidden="true"></i> 新增
             </button>
           </div>
@@ -553,9 +555,9 @@ button:hover { background: var(--bg-secondary); }
       <div class="card">
         <div class="card-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> 系統統計</div>
         <div class="summary-row">
-          <div class="metric"><div class="metric-val" id="stat-week">0</div><div class="metric-lbl">本週退貨單</div></div>
-          <div class="metric"><div class="metric-val" id="stat-users">0</div><div class="metric-lbl">使用人數</div></div>
-          <div class="metric"><div class="metric-val" id="stat-drafts">0</div><div class="metric-lbl">草稿未送</div></div>
+          <div class="metric"><div class="metric-val">47</div><div class="metric-lbl">本週退貨單</div></div>
+          <div class="metric"><div class="metric-val">3</div><div class="metric-lbl">使用人數</div></div>
+          <div class="metric"><div class="metric-val">2</div><div class="metric-lbl">草稿未送</div></div>
         </div>
       </div>
     </div>
@@ -564,20 +566,36 @@ button:hover { background: var(--bg-secondary); }
 </div>
 
 <script>
-// ── 資料（未來串接 API 替換此處）──
-const mockCustomers = [];   // 待串接 NEWPOWER 客戶 API
-const mockProducts = {};    // 待串接 NEWPOWER 產品 API
+const mockCustomers = [
+  '大潤貿易有限公司','信達實業股份有限公司','宏泰物流','東方電子','南洋企業','台灣電商集團','新北倉儲服務'
+];
+const mockProducts = {
+  '1234567890': { name: '無線滑鼠 M200', code: 'M200-BLK' },
+  '9876543210': { name: '機械鍵盤 K500', code: 'K500-RGB' },
+  '5555555555': { name: 'USB 集線器 H4', code: 'H4-USB' },
+  '1111111111': { name: '螢幕支架 S Pro', code: 'S-PRO-SLV' },
+};
 
 let users = [
-  { username: 'admin', password: 'admin', name: '系統管理員', role: '管理員' },
+  { username: 'admin', password: 'admin123', name: '系統管理員', role: '管理員' },
+  { username: 'warehouse', password: 'wh123', name: '王大明', role: '倉管' },
+  { username: 'li', password: 'li123', name: '李小華', role: '倉管' },
 ];
 
 let currentUser = null;
 let products = [];
 let selectedCustomer = '';
-let drafts = [];
-let history = [];
+let drafts = [
+  { id: 1, customer: '大潤貿易有限公司', items: [{name:'無線滑鼠 M200',code:'M200-BLK',qty:3},{name:'USB 集線器 H4',code:'H4-USB',qty:1}], savedAt: '2024/06/24 10:05', savedBy: '王大明' }
+];
+let history = [
+  { id: 'RET-20240624-011', customer: '大潤貿易有限公司', items: 3, status: 'sent', time: '2024/06/24 14:32', user: '王大明' },
+  { id: 'RET-20240624-010', customer: '信達實業股份有限公司', items: 5, status: 'pending', time: '2024/06/24 11:15', user: '王大明' },
+  { id: 'RET-20240623-008', customer: '宏泰物流', items: 2, status: 'sent', time: '2024/06/23 16:48', user: '李小華' },
+  { id: 'RET-20240623-007', customer: '東方電子', items: 1, status: 'sent', time: '2024/06/23 09:20', user: '王大明' },
+];
 
+// ── 登入 / 登出 ──────────────────────────────
 function doLogin() {
   const u = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value;
@@ -592,15 +610,16 @@ function doLogin() {
   document.getElementById('user-avatar').textContent = user.name.charAt(0);
   document.getElementById('user-name').textContent = user.name;
   document.getElementById('user-role').textContent = user.role;
-  if (user.role === '管理員') {
-    document.getElementById('admin-tab').style.display = '';
-  }
+  if (user.role === '管理員') document.getElementById('admin-tab').style.display = '';
   renderHistory();
   renderDrafts();
   renderUserList();
+  // 預設進入掃碼槍模式（不自動開相機）
+  setScanMode('gun');
 }
 
 function doLogout() {
+  stopCamera();
   currentUser = null;
   products = []; selectedCustomer = '';
   document.getElementById('main-app').style.display = 'none';
@@ -613,23 +632,23 @@ function doLogout() {
   resetScanForm();
 }
 
+// ── 頁籤 ──────────────────────────────────────
 function switchTab(tab) {
   const tabs = ['scan','history','drafts','admin'];
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const idx = tabs.indexOf(tab);
-  const visibleTabs = document.querySelectorAll('.tab');
   const adminShown = document.getElementById('admin-tab').style.display !== 'none';
   const tabMap = adminShown ? ['scan','history','drafts','admin'] : ['scan','history','drafts'];
   const vi = tabMap.indexOf(tab);
+  const visibleTabs = document.querySelectorAll('.tab');
   if (vi >= 0 && visibleTabs[vi]) visibleTabs[vi].classList.add('active');
   const pg = document.getElementById('page-' + tab);
   if (pg) pg.classList.add('active');
 }
 
+// ── 客戶搜尋 ──────────────────────────────────
 function searchCustomer(val) {
   const result = document.getElementById('customer-result');
-  const nameEl = document.getElementById('customer-name-display');
   const hint = document.getElementById('manual-hint');
   if (!val || val.length < 1) {
     result.classList.remove('show'); hint.style.display = 'none';
@@ -637,7 +656,7 @@ function searchCustomer(val) {
   }
   const found = mockCustomers.find(c => c.includes(val));
   if (found) {
-    nameEl.textContent = found;
+    document.getElementById('customer-name-display').textContent = found;
     result.classList.add('show');
     selectedCustomer = found;
     hint.style.display = 'none';
@@ -653,7 +672,6 @@ function enableManual() {
   const val = document.getElementById('customer-input').value.trim();
   if (!val) return;
   selectedCustomer = val;
-  document.getElementById('customer-name-display').textContent = val + '（手動輸入）';
   const result = document.getElementById('customer-result');
   result.innerHTML = '<span>' + val + ' <span class="tag-amber">手動</span></span>';
   result.classList.add('show');
@@ -661,6 +679,7 @@ function enableManual() {
   checkReady();
 }
 
+// ── 商品 ──────────────────────────────────────
 function addProduct() {
   const field = document.getElementById('barcode-field');
   const barcode = field.value.trim();
@@ -693,11 +712,11 @@ function renderProducts() {
         <div class="product-code">${p.code}</div>
       </div>
       <div class="qty-control">
-        <button class="qty-btn" data-action="qty-minus" data-idx="${i}">−</button>
+        <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
         <div class="qty-num">${p.qty}</div>
-        <button class="qty-btn" data-action="qty-plus" data-idx="${i}">+</button>
+        <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
       </div>
-      <button class="del-btn" data-action="remove-product" data-idx="${i}" aria-label="移除商品">
+      <button class="del-btn" onclick="removeProduct(${i})" aria-label="移除商品">
         <i class="ti ti-trash" aria-hidden="true"></i>
       </button>
     </div>
@@ -719,6 +738,7 @@ function checkReady() {
   document.getElementById('submit-btn').disabled = !(selectedCustomer && products.length > 0);
 }
 
+// ── 草稿 ──────────────────────────────────────
 function saveDraft() {
   if (products.length === 0 && !selectedCustomer) return;
   const draft = {
@@ -772,10 +792,10 @@ function renderDrafts() {
         <div class="history-meta">${d.savedAt}</div>
       </div>
       <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
-        <button data-action="load-draft" data-idx="${i}" style="padding:5px 10px; font-size:12px;">
+        <button onclick="loadDraft(${i})" style="padding:5px 10px; font-size:12px;">
           <i class="ti ti-edit" aria-hidden="true"></i> 繼續
         </button>
-        <button data-action="delete-draft" data-idx="${i}" style="padding:5px 8px; font-size:12px; color:var(--red-text); border-color:transparent;">
+        <button onclick="deleteDraft(${i})" style="padding:5px 8px; font-size:12px; color:var(--red-text); border-color:transparent;">
           <i class="ti ti-trash" aria-hidden="true"></i>
         </button>
       </div>
@@ -783,6 +803,7 @@ function renderDrafts() {
   `).join('');
 }
 
+// ── 送出 ──────────────────────────────────────
 function submitOrder() {
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
@@ -812,31 +833,23 @@ function submitOrder() {
 
 function resetScanForm() {
   document.getElementById('customer-input').value = '';
-  document.getElementById('customer-result').classList.remove('show');
-  document.getElementById('customer-result').innerHTML = '<span id="customer-name-display"></span><span class="tag-teal">已選取</span>';
+  const result = document.getElementById('customer-result');
+  result.classList.remove('show');
+  result.innerHTML = '<span id="customer-name-display"></span><span class="tag-teal">已選取</span>';
   document.getElementById('manual-hint').style.display = 'none';
   renderProducts();
 }
 
+// ── 紀錄 ──────────────────────────────────────
 const statusLabel = { sent: '已送ERP', pending: '待送出', draft: '草稿' };
 const statusClass = { sent: 's-sent', pending: 's-pending', draft: 's-draft' };
 const statusIcon = { sent: 'ti-check', pending: 'ti-clock', draft: 'ti-file' };
 
 function renderHistory() {
   const list = document.getElementById('history-list');
-  const show = (currentUser && currentUser.role === '管理員') ? history : history.filter(h => h.user === (currentUser ? currentUser.name : ''));
-
-  // 更新統計
-  const today = new Date().toLocaleDateString('zh-TW');
-  const todayList = show.filter(h => h.time.startsWith(today.replace(/\//g, '/')));
-  const el = id => document.getElementById(id);
-  if (el('stat-today')) el('stat-today').textContent = todayList.length;
-  if (el('stat-pending')) el('stat-pending').textContent = show.filter(h => h.status === 'pending').length;
-  if (el('stat-done')) el('stat-done').textContent = show.filter(h => h.status === 'sent').length;
-  if (el('stat-week')) el('stat-week').textContent = history.length;
-  if (el('stat-users')) el('stat-users').textContent = users.length;
-  if (el('stat-drafts')) el('stat-drafts').textContent = drafts.length;
-
+  const show = (currentUser && currentUser.role === '管理員')
+    ? history
+    : history.filter(h => h.user === (currentUser ? currentUser.name : ''));
   if (show.length === 0) {
     list.innerHTML = '<div class="empty-list">尚無退貨紀錄</div>'; return;
   }
@@ -866,7 +879,7 @@ function renderUserList() {
           <div class="history-meta">帳號：${u.username} ・ 角色：${u.role}</div>
         </div>
       </div>
-      ${i > 0 ? `<button data-action="remove-user" data-idx="${i}" style="padding:5px 8px; font-size:12px; color:var(--red-text); border-color:transparent;"><i class="ti ti-trash" aria-hidden="true"></i></button>` : ''}
+      ${i > 0 ? `<button onclick="removeUser(${i})" style="padding:5px 8px; font-size:12px; color:var(--red-text); border-color:transparent;"><i class="ti ti-trash" aria-hidden="true"></i></button>` : ''}
     </div>
   `).join('');
 }
@@ -891,233 +904,206 @@ function removeUser(i) {
 window.addEventListener('online', () => { document.getElementById('offline-banner').style.display = 'none'; });
 window.addEventListener('offline', () => { document.getElementById('offline-banner').style.display = 'flex'; });
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('login-btn').addEventListener('click', doLogin);
-  document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  document.getElementById('logout-btn').addEventListener('click', doLogout);
-
-  document.getElementById('tab-scan').addEventListener('click', () => switchTab('scan'));
-  document.getElementById('tab-history').addEventListener('click', () => switchTab('history'));
-  document.getElementById('tab-drafts').addEventListener('click', () => switchTab('drafts'));
-  document.getElementById('admin-tab').addEventListener('click', () => switchTab('admin'));
-
-  document.getElementById('customer-input').addEventListener('input', e => searchCustomer(e.target.value));
-  document.getElementById('customer-search-btn').addEventListener('click', () => searchCustomer(document.getElementById('customer-input').value));
-  document.getElementById('manual-link').addEventListener('click', enableManual);
-
-  document.getElementById('btn-mode-camera').addEventListener('click', () => setScanMode('camera'));
-  document.getElementById('btn-mode-gun').addEventListener('click', () => setScanMode('gun'));
-  document.getElementById('stop-camera-btn').addEventListener('click', stopCamera);
-  document.getElementById('scan-area-focus').addEventListener('click', () => document.getElementById('barcode-field').focus());
-
-  document.getElementById('barcode-field').addEventListener('keydown', e => { if (e.key === 'Enter') addProduct(); });
-  document.getElementById('add-product-btn').addEventListener('click', addProduct);
-
-  document.getElementById('save-draft-btn').addEventListener('click', saveDraft);
-  document.getElementById('submit-btn').addEventListener('click', submitOrder);
-  document.getElementById('add-user-btn').addEventListener('click', addUser);
-
-  document.getElementById('main-app').addEventListener('click', e => {
-    const btn = e.target.closest('[data-action]');
-    if (!btn) return;
-    const action = btn.dataset.action;
-    const idx = parseInt(btn.dataset.idx);
-    if (action === 'qty-minus') changeQty(idx, -1);
-    else if (action === 'qty-plus') changeQty(idx, 1);
-    else if (action === 'remove-product') removeProduct(idx);
-    else if (action === 'load-draft') loadDraft(idx);
-    else if (action === 'delete-draft') deleteDraft(idx);
-    else if (action === 'remove-user') removeUser(idx);
-  });
-
-  // ② 登入後預設掃碼槍模式，不自動開相機
-  setScanMode('gun');
-});
-
-// ════════════════════════════════════════
-//  掃碼模組
-// ════════════════════════════════════════
+// ── 相機 / 掃碼 ───────────────────────────────
 let cameraStream = null;
-let scanMode = 'gun';
-let scanLoopId = null;
-let scanCooldown = false;
-let zxingLoaded = false;
-let zxingLiveReader = null;
+let scanActive = false;
+let zxingReader = null;
+let scanMode = 'gun'; // 預設掃碼槍，不自動開相機
 
-// ── 模式切換 ──────────────────────────────────
 function setScanMode(mode) {
   scanMode = mode;
   document.getElementById('btn-mode-camera').classList.toggle('active', mode === 'camera');
   document.getElementById('btn-mode-gun').classList.toggle('active', mode === 'gun');
   document.getElementById('gun-input-area').style.display = mode === 'gun' ? 'block' : 'none';
+
   if (mode === 'camera') {
-    startLiveCamera();
+    startCamera();
   } else {
     stopCamera();
-    setTimeout(() => document.getElementById('barcode-field').focus(), 50);
+    setTimeout(() => document.getElementById('barcode-field').focus(), 100);
   }
 }
 
-// ── 即時掃描模式 ──────────────────────────────
-// ③ 改善相機啟動流程
-function startLiveCamera() {
-  const container = document.getElementById('camera-container');
-  const stopBtn   = document.getElementById('stop-camera-btn');
-  const banner    = document.getElementById('camera-result-banner');
+function showCameraStatus(msg, isError) {
+  const el = document.getElementById('camera-status');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+  el.style.color = isError ? 'var(--red-text)' : 'var(--text-secondary)';
+  el.style.background = isError ? 'var(--red-bg)' : 'var(--bg-secondary)';
+}
+
+function startCamera() {
+  // 支援度檢查
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('此瀏覽器不支援相機，請改用掃碼槍模式'); setScanMode('gun'); return;
+    showCameraStatus('此裝置或瀏覽器不支援相機，請改用掃碼槍模式', true);
+    return;
   }
 
-  banner.textContent = '⏳ 開啟相機中...'; banner.style.display = 'block';
-  container.style.display = 'block';
+  showCameraStatus('正在開啟相機…', false);
 
-  // ③ 優先後鏡頭，失敗自動退回任意鏡頭
-  const tryGetCamera = (constraints) =>
-    navigator.mediaDevices.getUserMedia({ video: constraints, audio: false });
+  // 優先使用後鏡頭，失敗則用任意鏡頭
+  const constraints = {
+    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+    audio: false
+  };
 
-  tryGetCamera({ facingMode: { exact: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } })
-    .catch(() => tryGetCamera({ facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }))
-    .catch(() => tryGetCamera({ width: { ideal: 1280 }, height: { ideal: 720 } }))
+  navigator.mediaDevices.getUserMedia(constraints)
+    .catch(() => navigator.mediaDevices.getUserMedia({ video: true, audio: false }))
     .then(stream => {
       cameraStream = stream;
       const video = document.getElementById('camera-video');
       video.srcObject = stream;
-      video.style.display = 'block';
-      stopBtn.style.display = 'block';
 
-      // ③ 等 loadedmetadata 確認影像就緒再開始掃描
+      // 確保 video 真的播放後才顯示
       video.onloadedmetadata = () => {
         video.play().then(() => {
-          banner.textContent = '📷 對準條碼掃描中...';
-          if ('BarcodeDetector' in window) {
-            startWithBarcodeDetector(video);
-          } else {
-            startWithZXingLive(video);
-          }
+          document.getElementById('camera-container').style.display = 'block';
+          document.getElementById('stop-camera-btn').style.display = 'block';
+          showCameraStatus('', false);
+          loadZXingAndScan();
         }).catch(err => {
-          banner.textContent = '⚠ 影像播放失敗：' + err.message;
+          showCameraStatus('相機啟動失敗：' + err.message, true);
         });
       };
     })
     .catch(err => {
-      container.style.display = 'none';
-      // ③ 明確的錯誤訊息
-      const msgs = {
-        NotAllowedError:  '相機權限被拒，請在瀏覽器設定中允許後重試',
-        NotFoundError:    '找不到相機裝置，請確認裝置已連接',
-        NotReadableError: '相機被其他應用程式佔用，請關閉後重試',
-      };
-      alert(msgs[err.name] || ('相機啟動失敗：' + err.message));
-      setScanMode('gun');
+      let msg = '無法開啟相機';
+      if (err.name === 'NotAllowedError') msg = '請允許相機權限後再試';
+      else if (err.name === 'NotFoundError') msg = '找不到相機裝置';
+      else if (err.name === 'NotReadableError') msg = '相機被其他應用佔用';
+      else msg = '相機錯誤：' + err.message;
+      showCameraStatus(msg, true);
     });
 }
 
 function stopCamera() {
-  if (scanLoopId) { cancelAnimationFrame(scanLoopId); scanLoopId = null; }
-  if (zxingLiveReader) { try { zxingLiveReader.reset(); } catch(e){} zxingLiveReader = null; }
-  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
-  const video = document.getElementById('camera-video');
-  if (video) { video.srcObject = null; video.style.display = 'none'; }
+  scanActive = false;
+  if (zxingReader) {
+    try { zxingReader.reset(); } catch(e) {}
+    zxingReader = null;
+  }
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
   document.getElementById('camera-container').style.display = 'none';
   document.getElementById('stop-camera-btn').style.display = 'none';
-  document.getElementById('camera-result-banner').style.display = 'none';
+  showCameraStatus('', false);
 }
 
-function onBarcodeFound(code) {
-  if (scanCooldown || !code) return;
-  scanCooldown = true;
-  const banner = document.getElementById('camera-result-banner');
-  banner.textContent = '✓ 已掃描：' + code;
-  banner.style.display = 'block';
-  document.getElementById('barcode-field').value = code;
-  addProduct();
-  setTimeout(() => {
-    scanCooldown = false;
-    if (cameraStream) banner.textContent = '📷 對準條碼掃描中...';
-  }, 1500);
-}
-
-// 即時掃描：BarcodeDetector（Android Chrome 原生）
-function startWithBarcodeDetector(video) {
-  const detector = new BarcodeDetector({
-    formats: ['code_128','ean_13','ean_8','code_39','upc_a','upc_e','qr_code']
-  });
-  const canvas = document.getElementById('camera-canvas');
-  const ctx = canvas.getContext('2d');
-  function loop() {
-    if (!cameraStream) return;
-    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0);
-      detector.detect(canvas)
-        .then(r => { if (r.length > 0) onBarcodeFound(r[0].rawValue); })
-        .catch(() => {});
-    }
-    scanLoopId = requestAnimationFrame(loop);
-  }
-  loop();
-}
-
-// ① 即時掃描：@zxing/browser 為主，@zxing/library 備援
-function startWithZXingLive(video) {
-  const banner = document.getElementById('camera-result-banner');
-  banner.textContent = '⏳ 載入掃碼模組...';
-
-  const tryZXingBrowser = (onFail) => {
-    loadScript(
-      'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js',
-      () => {
-        zxingLoaded = true;
-        banner.textContent = '📷 對準條碼掃描中...';
-        try {
-          zxingLiveReader = new ZXingBrowser.BrowserMultiFormatReader();
-          zxingLiveReader.decodeFromVideoElement(video, (result) => {
-            if (result) onBarcodeFound(result.getText());
-          });
-        } catch(e) { onFail(); }
-      },
-      onFail
-    );
-  };
-
-  const tryZXingLib = () => {
-    loadScript(
-      'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js',
-      () => {
-        zxingLoaded = true;
-        banner.textContent = '📷 對準條碼掃描中...';
-        try {
-          const hints = new Map();
-          hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-            ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.EAN_13,
-            ZXing.BarcodeFormat.EAN_8,   ZXing.BarcodeFormat.CODE_39,
-            ZXing.BarcodeFormat.UPC_A,   ZXing.BarcodeFormat.QR_CODE,
-          ]);
-          hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-          zxingLiveReader = new ZXing.BrowserMultiFormatReader(hints);
-          zxingLiveReader.decodeFromVideoDevice(null, video, (result) => {
-            if (result) onBarcodeFound(result.getText());
-          });
-        } catch(e) { banner.textContent = '⚠ 掃碼啟動失敗，請改用掃碼槍模式'; }
-      },
-      () => { banner.textContent = '⚠ 掃碼模組載入失敗，請確認網路後重試'; }
-    );
-  };
-
-  tryZXingBrowser(tryZXingLib);
-}
-
-// 工具：載入外部腳本
-function loadScript(url, onSuccess, onFail) {
+function loadZXingAndScan() {
+  showCameraStatus('載入掃碼引擎…', false);
+  // 使用 ZXing-js，支援 EAN、Code128、QR Code 等
   const s = document.createElement('script');
-  s.src = url;
-  s.onload = onSuccess;
-  s.onerror = onFail;
+  s.src = 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js';
+  s.onload = () => {
+    showCameraStatus('', false);
+    startZXingScan();
+  };
+  s.onerror = () => {
+    // ZXing 載入失敗，改用 canvas + jsQR 備援
+    showCameraStatus('切換備援掃碼引擎…', false);
+    loadJsQRFallback();
+  };
   document.head.appendChild(s);
 }
-</script>
-</body>
+
+function startZXingScan() {
+  try {
+    const hints = new Map();
+    // 支援的條碼格式
+    const formats = [
+      window.ZXingBrowser.BarcodeFormat?.EAN_13,
+      window.ZXingBrowser.BarcodeFormat?.EAN_8,
+      window.ZXingBrowser.BarcodeFormat?.CODE_128,
+      window.ZXingBrowser.BarcodeFormat?.CODE_39,
+      window.ZXingBrowser.BarcodeFormat?.UPC_A,
+      window.ZXingBrowser.BarcodeFormat?.QR_CODE,
+    ].filter(Boolean);
+
+    if (formats.length) {
+      hints.set(window.ZXingBrowser.DecodeHintType?.POSSIBLE_FORMATS, formats);
+    }
+
+    zxingReader = new window.ZXingBrowser.BrowserMultiFormatReader(hints, {
+      delayBetweenScanAttempts: 200
+    });
+
+    const video = document.getElementById('camera-video');
+    scanActive = true;
+
+    zxingReader.decodeFromVideoElement(video, (result, err) => {
+      if (!scanActive) return;
+      if (result) {
+        const barcode = result.getText().trim();
+        onBarcodeScanned(barcode);
+      }
+      // err 通常是 NotFoundException（未掃到），可忽略
+    });
+  } catch(e) {
+    // ZXing API 異常，fallback
+    loadJsQRFallback();
+  }
+}
+
+// ── jsQR fallback（僅支援 QR Code）────────────
+let jsQRLoaded = false;
+let scanIntervalId = null;
+
+function loadJsQRFallback() {
+  if (jsQRLoaded) { startJsQRLoop(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+  s.onload = () => { jsQRLoaded = true; startJsQRLoop(); };
+  s.onerror = () => { showCameraStatus('無法載入掃碼函式庫，請確認網路連線', true); };
+  document.head.appendChild(s);
+}
+
+function startJsQRLoop() {
+  showCameraStatus('備援模式（僅支援 QR Code）', false);
+  if (scanIntervalId) clearInterval(scanIntervalId);
+  const video = document.getElementById('camera-video');
+  const canvas = document.getElementById('camera-canvas');
+  const ctx = canvas.getContext('2d');
+  scanActive = true;
+
+  scanIntervalId = setInterval(() => {
+    if (!scanActive || video.readyState < 2) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+    if (code && code.data) {
+      onBarcodeScanned(code.data.trim());
+    }
+  }, 250);
+}
+
+// ── 掃碼成功共用處理 ──────────────────────────
+function onBarcodeScanned(barcode) {
+  if (!scanActive) return;
+  scanActive = false; // 暫停掃描，避免連續觸發
+
+  document.getElementById('barcode-field').value = barcode;
+  addProduct();
+
+  const banner = document.getElementById('camera-result-banner');
+  banner.textContent = '✓ 已掃描：' + barcode;
+  banner.style.display = 'block';
+
+  // 1.5 秒後繼續掃描
+  setTimeout(() => {
+    banner.style.display = 'none';
+    if (cameraStream) {
+      scanActive = true;
+      // ZXing 會自動繼續；jsQR 需重啟 interval
+      if (scanIntervalId !== null && !zxingReader) {
+        startJsQRLoop();
+      }
+    }
+  }, 1500);
+}
 </script>
 </body>
 </html>
