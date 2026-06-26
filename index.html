@@ -465,7 +465,7 @@ button:hover { background: var(--bg-secondary); }
         <div id="camera-status" class="camera-status"></div>
 
         <div id="camera-container">
-          <video id="camera-video" playsinline autoplay muted></video>
+          <video id="camera-video" playsinline muted></video>
           <canvas id="camera-canvas"></canvas>
           <div class="scan-overlay"><div class="scan-line"></div></div>
           <div class="camera-result-banner" id="camera-result-banner"></div>
@@ -950,17 +950,29 @@ function startCamera() {
     .then(stream => {
       cameraStream = stream;
       const video = document.getElementById('camera-video');
+      
+      // 先關閉舊的串流避免殘留
+      video.srcObject = null;
+      
+      // 綁定新串流
       video.srcObject = stream;
 
-      // ✅ 監聽 onplaying 事件，確保 iOS 畫面真實繪製且流暢播放才載入掃碼引擎
-      video.onplaying = () => {
-        document.getElementById('camera-container').style.display = 'block';
-        document.getElementById('stop-camera-btn').style.display = 'block';
-        showCameraStatus('', false);
-        loadZXingAndScan();
+      // ✅ 改用 onloadedmetadata，等待資源就緒後才播放，完美相容 iOS WebKit
+      video.onloadedmetadata = () => {
+        video.play().then(() => {
+          document.getElementById('camera-container').style.display = 'block';
+          document.getElementById('stop-camera-btn').style.display = 'block';
+          showCameraStatus('', false);
+          loadZXingAndScan();
+        }).catch(err => {
+          console.warn('手動 play() 被 iOS 攔截，嘗試強制載入畫面:', err);
+          // 若被 iOS 策略阻擋，仍顯示畫面並嘗試掛載引擎
+          document.getElementById('camera-container').style.display = 'block';
+          document.getElementById('stop-camera-btn').style.display = 'block';
+          showCameraStatus('', false);
+          loadZXingAndScan();
+        });
       };
-
-      video.play().catch(err => console.warn('Video play prevented by iOS:', err));
     })
     .catch(err => {
       let msg = '無法開啟相機';
