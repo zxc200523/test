@@ -267,22 +267,6 @@ button:hover { background: var(--bg-secondary); }
   padding: 8px 12px; font-size: 13px; text-align: center;
   display: none;
 }
-.ios-capture-btn {
-  display: none;
-  width: 100%; padding: 14px;
-  background: var(--purple-btn); color: #fff;
-  border: none; border-radius: var(--radius-lg);
-  font-size: 16px; font-weight: 500; cursor: pointer;
-  margin-bottom: 12px; text-align: center;
-}
-.ios-capture-btn:active { background: var(--purple-btn-hover); }
-#ios-file-input { display: none; }
-.ios-preview {
-  width: 100%; border-radius: var(--radius-lg);
-  margin-bottom: 8px; display: none; max-height: 200px;
-  object-fit: contain; background: var(--bg-secondary);
-}
-.ios-status {
   text-align: center; padding: 10px;
   font-size: 13px; color: var(--text-secondary);
   display: none;
@@ -487,13 +471,6 @@ button:hover { background: var(--bg-secondary); }
           <div class="scan-overlay"><div class="scan-line"></div></div>
           <div class="camera-result-banner" id="camera-result-banner"></div>
         </div>
-        <!-- iOS 拍照模式 -->
-        <input type="file" id="ios-file-input" accept="image/*" capture="environment" />
-        <button class="ios-capture-btn" id="ios-capture-btn">
-          <i class="ti ti-camera" aria-hidden="true"></i>　拍照掃描條碼
-        </button>
-        <img id="ios-preview" class="ios-preview" alt="拍攝預覽" />
-        <div class="ios-status" id="ios-status"></div>
         <button class="stop-camera-btn" id="stop-camera-btn">
           <i class="ti ti-camera-off" aria-hidden="true"></i> 關閉鏡頭
         </button>
@@ -932,10 +909,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-mode-camera').addEventListener('click', () => setScanMode('camera'));
   document.getElementById('btn-mode-gun').addEventListener('click', () => setScanMode('gun'));
   document.getElementById('stop-camera-btn').addEventListener('click', stopCamera);
-  document.getElementById('ios-capture-btn').addEventListener('click', () => {
-    document.getElementById('ios-file-input').click();
-  });
-  document.getElementById('ios-file-input').addEventListener('change', handleIOSCapture);
   document.getElementById('scan-area-focus').addEventListener('click', () => document.getElementById('barcode-field').focus());
 
   document.getElementById('barcode-field').addEventListener('keydown', e => { if (e.key === 'Enter') addProduct(); });
@@ -969,11 +942,8 @@ let cameraStream = null;
 let scanMode = 'gun';
 let scanLoopId = null;
 let scanCooldown = false;
-let zxingBrowserLoaded = false;
-let zxingLibLoaded = false;
+let zxingLoaded = false;
 let zxingLiveReader = null;
-
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 // ── 模式切換 ──────────────────────────────────
 function setScanMode(mode) {
@@ -982,112 +952,19 @@ function setScanMode(mode) {
   document.getElementById('btn-mode-gun').classList.toggle('active', mode === 'gun');
   document.getElementById('gun-input-area').style.display = mode === 'gun' ? 'block' : 'none';
   if (mode === 'camera') {
-    isIOS ? setupIOSMode() : startLiveCamera();
+    startLiveCamera();
   } else {
     stopCamera();
     setTimeout(() => document.getElementById('barcode-field').focus(), 50);
   }
 }
 
-// ── iOS 拍照模式 ──────────────────────────────
-function setupIOSMode() {
-  document.getElementById('camera-container').style.display = 'none';
-  document.getElementById('stop-camera-btn').style.display = 'none';
-  document.getElementById('ios-capture-btn').style.display = 'none';
-  setIOSStatus('⏳ 載入掃碼模組中，請稍候...');
-
-  // ① 優先用 @zxing/browser，失敗備援 @zxing/library
-  if (zxingBrowserLoaded || zxingLibLoaded) {
-    showIOSReady(); return;
-  }
-  loadScript(
-    'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js',
-    () => { zxingBrowserLoaded = true; showIOSReady(); },
-    () => loadScript(
-      'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js',
-      () => { zxingLibLoaded = true; showIOSReady(); },
-      () => setIOSStatus('⚠ 掃碼模組載入失敗，請確認網路後重新整理')
-    )
-  );
-}
-
-function showIOSReady() {
-  document.getElementById('ios-capture-btn').style.display = 'block';
-  setIOSStatus('請點上方按鈕，對準條碼拍照');
-}
-
-function setIOSStatus(msg) {
-  const el = document.getElementById('ios-status');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-function handleIOSCapture(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  setIOSStatus('🔍 解析條碼中...');
-  const preview = document.getElementById('ios-preview');
-  const url = URL.createObjectURL(file);
-  preview.src = url; preview.style.display = 'block';
-  const img = new Image();
-  img.onload = () => {
-    URL.revokeObjectURL(url);
-    // 多尺度嘗試提高辨識率
-    const found = [1, 0.75, 0.5, 1.5].some(scale => {
-      const canvas = document.getElementById('camera-canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      const result = decodeCanvas(canvas);
-      if (result) { onBarcodeFound(result); return true; }
-      return false;
-    });
-    if (!found) setIOSStatus('⚠ 未識別到條碼，請重拍（確保條碼清晰、置中、光線充足）');
-    else setTimeout(() => { preview.style.display = 'none'; showIOSReady(); }, 2000);
-  };
-  img.onerror = () => setIOSStatus('⚠ 圖片讀取失敗，請重試');
-  img.src = url;
-  e.target.value = '';
-}
-
-// ① 統一解碼函式：優先 @zxing/browser，備援 @zxing/library
-function decodeCanvas(canvas) {
-  // @zxing/browser
-  if (zxingBrowserLoaded && typeof ZXingBrowser !== 'undefined') {
-    try {
-      const reader = new ZXingBrowser.BrowserMultiFormatReader();
-      const result = reader.decodeFromCanvas(canvas);
-      return result ? result.getText() : null;
-    } catch(e) { /* 繼續嘗試備援 */ }
-  }
-  // @zxing/library
-  if (zxingLibLoaded && typeof ZXing !== 'undefined') {
-    try {
-      const hints = new Map();
-      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-        ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.EAN_13,
-        ZXing.BarcodeFormat.EAN_8,   ZXing.BarcodeFormat.CODE_39,
-        ZXing.BarcodeFormat.UPC_A,   ZXing.BarcodeFormat.QR_CODE,
-      ]);
-      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-      const reader = new ZXing.BrowserMultiFormatReader(hints);
-      const src = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
-      const result = reader.decode(new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(src)));
-      return result ? result.getText() : null;
-    } catch(e) { return null; }
-  }
-  return null;
-}
-
-// ── 非 iOS 即時掃描模式 ───────────────────────
+// ── 即時掃描模式 ──────────────────────────────
 // ③ 改善相機啟動流程
 function startLiveCamera() {
   const container = document.getElementById('camera-container');
   const stopBtn   = document.getElementById('stop-camera-btn');
   const banner    = document.getElementById('camera-result-banner');
-  document.getElementById('ios-capture-btn').style.display = 'none';
-  document.getElementById('ios-status').style.display = 'none';
-
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     alert('此瀏覽器不支援相機，請改用掃碼槍模式'); setScanMode('gun'); return;
   }
@@ -1145,23 +1022,19 @@ function stopCamera() {
   document.getElementById('camera-container').style.display = 'none';
   document.getElementById('stop-camera-btn').style.display = 'none';
   document.getElementById('camera-result-banner').style.display = 'none';
-  document.getElementById('ios-capture-btn').style.display = 'none';
-  document.getElementById('ios-status').style.display = 'none';
-  document.getElementById('ios-preview').style.display = 'none';
 }
 
 function onBarcodeFound(code) {
   if (scanCooldown || !code) return;
   scanCooldown = true;
   const banner = document.getElementById('camera-result-banner');
-  const status = document.getElementById('ios-status');
-  if (isIOS) status.textContent = '✓ 已掃描：' + code;
-  else { banner.textContent = '✓ 已掃描：' + code; banner.style.display = 'block'; }
+  banner.textContent = '✓ 已掃描：' + code;
+  banner.style.display = 'block';
   document.getElementById('barcode-field').value = code;
   addProduct();
   setTimeout(() => {
     scanCooldown = false;
-    if (!isIOS && cameraStream) banner.textContent = '📷 對準條碼掃描中...';
+    if (cameraStream) banner.textContent = '📷 對準條碼掃描中...';
   }, 1500);
 }
 
@@ -1195,7 +1068,7 @@ function startWithZXingLive(video) {
     loadScript(
       'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js',
       () => {
-        zxingBrowserLoaded = true;
+        zxingLoaded = true;
         banner.textContent = '📷 對準條碼掃描中...';
         try {
           zxingLiveReader = new ZXingBrowser.BrowserMultiFormatReader();
@@ -1212,7 +1085,7 @@ function startWithZXingLive(video) {
     loadScript(
       'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js',
       () => {
-        zxingLibLoaded = true;
+        zxingLoaded = true;
         banner.textContent = '📷 對準條碼掃描中...';
         try {
           const hints = new Map();
