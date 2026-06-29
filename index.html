@@ -370,6 +370,15 @@ button:hover { background: var(--bg-secondary); }
   .summary-row { flex-wrap: wrap; }
   .metric { min-width: calc(33% - 6px); }
 }
+
+/* API test result */
+.api-test-result {
+  font-size: 12px; margin-top: 6px; padding: 6px 10px;
+  border-radius: var(--radius-md); display: none;
+}
+.api-test-result.ok  { background: var(--teal-bg);   color: var(--teal-text);  display: block; }
+.api-test-result.err { background: var(--red-bg);    color: var(--red-text);   display: block; }
+.api-test-result.ing { background: var(--amber-bg);  color: var(--amber-text); display: block; }
 </style>
 </head>
 <body>
@@ -423,6 +432,9 @@ button:hover { background: var(--bg-secondary); }
       </div>
       <div class="tab" id="admin-tab" style="display:none;">
         <i class="ti ti-settings" aria-hidden="true"></i> 管理
+      </div>
+      <div class="tab" id="api-tab" style="display:none;">
+        <i class="ti ti-plug" aria-hidden="true"></i> API設定
       </div>
     </div>
 
@@ -560,6 +572,119 @@ button:hover { background: var(--bg-secondary); }
       </div>
     </div>
 
+    <!-- API 設定（僅管理員可見） -->
+    <div id="page-api" class="page">
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-key" aria-hidden="true"></i> Token 狀態</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div id="token-status-text" style="font-size:13px; color:var(--text-secondary);">尚未取得 Token</div>
+            <div id="token-expire-text" style="font-size:11px; color:var(--text-secondary); margin-top:2px;"></div>
+          </div>
+          <button id="btn-refresh-token" style="font-size:13px; padding:6px 12px;">
+            <i class="ti ti-refresh" aria-hidden="true"></i> 重新取得
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-server" aria-hidden="true"></i> 基本設定</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div>
+            <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:4px;">API 基礎網址（Base URL）</label>
+            <input type="text" id="api-base-url" placeholder="https://erp.example.com/api" />
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:4px;">公司統一編號（cust_no）</label>
+            <input type="text" id="api-cust-no" placeholder="公司統編" />
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:4px;">用戶帳號（user_no）</label>
+            <input type="text" id="api-user-no" placeholder="ERP 帳號" />
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:4px;">用戶密碼（user_pass）</label>
+            <input type="password" id="api-user-pass" placeholder="ERP 密碼" />
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:4px;">語系（lang）</label>
+            <select id="api-lang" style="width:100%; padding:8px 10px; border:0.5px solid var(--border-mid); border-radius:var(--radius-md); background:var(--bg-primary); color:var(--text-primary); font-size:14px;">
+              <option value="zh-TW">繁體中文（zh-TW）</option>
+              <option value="zh-CN">簡體中文（zh-CN）</option>
+              <option value="en">English（en）</option>
+            </select>
+          </div>
+          <div style="background:var(--bg-secondary); border-radius:var(--radius-md); padding:10px 12px;">
+            <div style="font-size:12px; color:var(--text-secondary); margin-bottom:6px;">sys_id 對應（依 API 功能帶入不同代號）</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12px; min-width:80px; color:var(--text-secondary);">客戶搜尋</span>
+                <input type="text" id="api-sysid-customer" placeholder="sys_id" style="flex:1;" />
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12px; min-width:80px; color:var(--text-secondary);">商品查詢</span>
+                <input type="text" id="api-sysid-product" placeholder="sys_id" style="flex:1;" />
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12px; min-width:80px; color:var(--text-secondary);">退貨單送出</span>
+                <input type="text" id="api-sysid-return" placeholder="sys_id" style="flex:1;" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-route" aria-hidden="true"></i> API 端點設定</div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:4px;">客戶搜尋路徑</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="api-customer-path" placeholder="/customers?keyword={keyword}" style="flex:1;" />
+              <button class="api-test-btn" data-target="customer" style="font-size:12px; padding:6px 10px; white-space:nowrap;"><i class="ti ti-plug" aria-hidden="true"></i> 測試</button>
+            </div>
+            <div class="api-test-result" id="result-customer"></div>
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:4px;">商品查詢路徑</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="api-product-path" placeholder="/products?barcode={barcode}" style="flex:1;" />
+              <button class="api-test-btn" data-target="product" style="font-size:12px; padding:6px 10px; white-space:nowrap;"><i class="ti ti-plug" aria-hidden="true"></i> 測試</button>
+            </div>
+            <div class="api-test-result" id="result-product"></div>
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:4px;">退貨單送出路徑</label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="api-return-path" placeholder="/returns" style="flex:1;" />
+              <button class="api-test-btn" data-target="return" style="font-size:12px; padding:6px 10px; white-space:nowrap;"><i class="ti ti-plug" aria-hidden="true"></i> 測試</button>
+            </div>
+            <div class="api-test-result" id="result-return"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-database" aria-hidden="true"></i> 商品快取</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div style="font-size:13px;">快取商品：<span id="cache-count">0</span> 筆</div>
+            <div id="cache-updated" style="font-size:11px; color:var(--text-secondary); margin-top:2px;"></div>
+          </div>
+          <button id="btn-clear-cache" style="font-size:13px; padding:6px 12px; color:var(--red-text); border-color:var(--red-text);">
+            <i class="ti ti-trash" aria-hidden="true"></i> 清除快取
+          </button>
+        </div>
+      </div>
+
+      <button id="btn-save-api" style="width:100%; padding:12px; background:var(--purple-btn); color:#fff; border:none; border-radius:var(--radius-md); font-size:15px; font-weight:500; cursor:pointer; margin-bottom:4px;">
+        <i class="ti ti-device-floppy" aria-hidden="true"></i> 儲存 API 設定
+      </button>
+      <div id="api-save-msg" style="text-align:center; font-size:13px; margin-bottom:12px; display:none;"></div>
+
+    </div>
+
   </div>
 </div>
 
@@ -628,6 +753,7 @@ function doLogin() {
   document.getElementById('user-role').textContent = user.role;
   if (user.role === '管理員') {
     document.getElementById('admin-tab').style.display = '';
+    document.getElementById('api-tab').style.display = '';
   }
   renderHistory();
   renderDrafts();
@@ -643,35 +769,43 @@ function doLogout() {
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('admin-tab').style.display = 'none';
+  document.getElementById('api-tab').style.display = 'none';
   switchTab('scan');
   resetScanForm();
 }
 
 function switchTab(tab) {
-  const tabs = ['scan','history','drafts','admin'];
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  const tabs = ['scan','history','drafts','admin','api'];
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const idx = tabs.indexOf(tab);
-  const visibleTabs = document.querySelectorAll('.tab');
   const adminShown = document.getElementById('admin-tab').style.display !== 'none';
-  const tabMap = adminShown ? ['scan','history','drafts','admin'] : ['scan','history','drafts'];
+  const tabMap = adminShown ? ['scan','history','drafts','admin','api'] : ['scan','history','drafts'];
+  const visibleTabs = document.querySelectorAll('.tab');
   const vi = tabMap.indexOf(tab);
   if (vi >= 0 && visibleTabs[vi]) visibleTabs[vi].classList.add('active');
   const pg = document.getElementById('page-' + tab);
   if (pg) pg.classList.add('active');
+  if (tab === 'api') loadApiSettings();
+  if (tab === 'history') renderHistory();
 }
 
-function searchCustomer(val) {
+async function searchCustomer(val) {
   const result = document.getElementById('customer-result');
-  const nameEl = document.getElementById('customer-name-display');
-  const hint = document.getElementById('manual-hint');
+  const hint   = document.getElementById('manual-hint');
   if (!val || val.length < 1) {
     result.classList.remove('show'); hint.style.display = 'none';
     selectedCustomer = ''; checkReady(); return;
   }
-  const found = mockCustomers.find(c => c.includes(val));
+  // 先查本地 mock，再查 API
+  let found = mockCustomers.find(c => c.includes(val));
+  if (!found) {
+    const apiResults = await searchCustomerAPI(val);
+    if (apiResults && apiResults.length > 0) {
+      found = typeof apiResults[0] === 'string' ? apiResults[0] : (apiResults[0].name || apiResults[0].customerName || '');
+    }
+  }
   if (found) {
-    nameEl.textContent = found;
+    result.innerHTML = '<span id="customer-name-display">' + found + '</span><span class="tag-teal">已選取</span>';
     result.classList.add('show');
     selectedCustomer = found;
     hint.style.display = 'none';
@@ -695,20 +829,27 @@ function enableManual() {
   checkReady();
 }
 
-function addProduct() {
+async function addProduct() {
   const field = document.getElementById('barcode-field');
   const barcode = field.value.trim();
   if (!barcode) return;
-  const product = mockProducts[barcode];
+
+  const product = await queryProduct(barcode);
   if (!product) {
-    field.style.borderColor = '#E24B4A';
-    field.value = ''; field.placeholder = '⚠ 條碼不存在，請確認';
-    setTimeout(() => { field.style.borderColor = ''; field.placeholder = '條碼（輸入後按 Enter）'; }, 2000);
-    return;
+    // 查不到 → 提示手動輸入
+    field.style.borderColor = 'var(--amber-text)';
+    const manualName = prompt('找不到條碼 ' + barcode + ' 的商品，請手動輸入商品名稱（取消則略過）：');
+    field.style.borderColor = '';
+    if (!manualName) { field.value = ''; return; }
+    const manualProduct = { name: manualName, code: barcode };
+    const existing = products.find(p => p.code === barcode);
+    if (existing) { existing.qty++; }
+    else { products.push({ ...manualProduct, qty: 1 }); }
+  } else {
+    const existing = products.find(p => p.code === product.code);
+    if (existing) { existing.qty++; }
+    else { products.push({ ...product, qty: 1 }); }
   }
-  const existing = products.find(p => p.code === product.code);
-  if (existing) { existing.qty++; }
-  else { products.push({ ...product, qty: 1 }); }
   field.value = '';
   renderProducts();
   checkReady();
@@ -922,6 +1063,258 @@ function removeUser(i) {
   renderUserList();
 }
 
+// ════════════════════════════════════════
+//  API 設定與 Token 管理
+// ════════════════════════════════════════
+const API_STORAGE_KEY = 'returnSystem_apiConfig';
+const PRODUCT_CACHE_KEY = 'returnSystem_productCache';
+
+let apiConfig = {
+  baseUrl: '',
+  custNo: '',
+  userNo: '',
+  userPass: '',
+  lang: 'zh-TW',
+  sysIdCustomer: '',
+  sysIdProduct: '',
+  sysIdReturn: '',
+  customerPath: '/customers?keyword={keyword}',
+  productPath: '/products?barcode={barcode}',
+  returnPath: '/returns',
+};
+let apiTokens = {}; // { sysId: { token, expireAt } }
+let productCache = {};
+
+// 載入儲存的設定
+function loadApiSettings() {
+  const saved = localStorage.getItem(API_STORAGE_KEY);
+  if (saved) {
+    try { apiConfig = { ...apiConfig, ...JSON.parse(saved) }; } catch(e) {}
+  }
+  document.getElementById('api-base-url').value        = apiConfig.baseUrl        || '';
+  document.getElementById('api-cust-no').value         = apiConfig.custNo         || '';
+  document.getElementById('api-user-no').value         = apiConfig.userNo         || '';
+  document.getElementById('api-user-pass').value       = apiConfig.userPass       || '';
+  document.getElementById('api-lang').value            = apiConfig.lang           || 'zh-TW';
+  document.getElementById('api-sysid-customer').value  = apiConfig.sysIdCustomer  || '';
+  document.getElementById('api-sysid-product').value   = apiConfig.sysIdProduct   || '';
+  document.getElementById('api-sysid-return').value    = apiConfig.sysIdReturn    || '';
+  document.getElementById('api-customer-path').value   = apiConfig.customerPath   || '';
+  document.getElementById('api-product-path').value    = apiConfig.productPath    || '';
+  document.getElementById('api-return-path').value     = apiConfig.returnPath     || '';
+  refreshCacheStatus();
+  updateTokenStatus();
+}
+
+// 儲存設定
+function saveApiSettings() {
+  apiConfig.baseUrl       = document.getElementById('api-base-url').value.trim();
+  apiConfig.custNo        = document.getElementById('api-cust-no').value.trim();
+  apiConfig.userNo        = document.getElementById('api-user-no').value.trim();
+  apiConfig.userPass      = document.getElementById('api-user-pass').value;
+  apiConfig.lang          = document.getElementById('api-lang').value;
+  apiConfig.sysIdCustomer = document.getElementById('api-sysid-customer').value.trim();
+  apiConfig.sysIdProduct  = document.getElementById('api-sysid-product').value.trim();
+  apiConfig.sysIdReturn   = document.getElementById('api-sysid-return').value.trim();
+  apiConfig.customerPath  = document.getElementById('api-customer-path').value.trim();
+  apiConfig.productPath   = document.getElementById('api-product-path').value.trim();
+  apiConfig.returnPath    = document.getElementById('api-return-path').value.trim();
+  localStorage.setItem(API_STORAGE_KEY, JSON.stringify(apiConfig));
+  apiTokens = {}; // 設定變更後清除舊 Token
+  const msg = document.getElementById('api-save-msg');
+  msg.textContent = '✓ 設定已儲存，Token 已重置';
+  msg.style.color = 'var(--teal-text)';
+  msg.style.display = 'block';
+  setTimeout(() => { msg.style.display = 'none'; }, 2500);
+}
+
+// ── Token 管理（依 sys_id 各自管理）────────────
+async function getToken(sysId) {
+  const cached = apiTokens[sysId];
+  if (cached && Date.now() < cached.expireAt) return cached.token;
+  return await fetchToken(sysId);
+}
+
+async function fetchToken(sysId) {
+  updateTokenStatus('⏳ 取得 Token 中（' + sysId + '）...');
+  if (!apiConfig.baseUrl || !apiConfig.custNo || !apiConfig.userNo) {
+    updateTokenStatus('⚠ 請先填寫 API 基本設定（統編、帳號、密碼）');
+    return null;
+  }
+  try {
+    const url = apiConfig.baseUrl.replace(/\/$/, '') + '/js_login';
+    const body = {
+      js_login: {
+        cust_no:   apiConfig.custNo,
+        user_no:   apiConfig.userNo,
+        user_pass: apiConfig.userPass,
+        sys_id:    sysId,
+        lang:      apiConfig.lang || 'zh-TW',
+      }
+    };
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    // NEWPOWER 回傳 app_token
+    const token = data?.js_login?.app_token || data?.app_token || null;
+    if (!token) throw new Error('回傳格式錯誤，找不到 app_token');
+    const expireAt = Date.now() + (3600 - 60) * 1000; // 預設 1 小時，提前 60 秒更新
+    apiTokens[sysId] = { token, expireAt };
+    updateTokenStatus('✓ Token 有效', expireAt);
+    return token;
+  } catch(e) {
+    updateTokenStatus('✗ Token 取得失敗：' + e.message);
+    return null;
+  }
+}
+
+async function refreshToken() {
+  apiTokens = {};
+  const sysIds = [apiConfig.sysIdCustomer, apiConfig.sysIdProduct, apiConfig.sysIdReturn].filter(Boolean);
+  if (sysIds.length === 0) { updateTokenStatus('⚠ 請先設定 sys_id'); return; }
+  await fetchToken(sysIds[0]); // 先取得第一個當代表
+}
+
+function updateTokenStatus(msg, expireAt) {
+  const statusEl = document.getElementById('token-status-text');
+  const expireEl = document.getElementById('token-expire-text');
+  if (!statusEl) return;
+  if (msg) {
+    statusEl.textContent = msg;
+    statusEl.style.color = msg.startsWith('✓') ? 'var(--teal-text)' : msg.startsWith('✗') ? 'var(--red-text)' : 'var(--amber-text)';
+  } else {
+    const hasToken = Object.keys(apiTokens).length > 0;
+    statusEl.textContent = hasToken ? '✓ Token 有效' : '尚未取得 Token';
+    statusEl.style.color = hasToken ? 'var(--teal-text)' : 'var(--text-secondary)';
+  }
+  if (expireAt) {
+    expireEl.textContent = '到期時間：' + new Date(expireAt).toLocaleString('zh-TW');
+  } else {
+    expireEl.textContent = '';
+  }
+}
+
+// ── 通用 API 呼叫 ────────────────────────────
+async function apiCall(path, sysId, method = 'GET', body = null) {
+  const token = await getToken(sysId);
+  if (!token) throw new Error('無法取得 Token（sys_id: ' + sysId + '）');
+  const url = apiConfig.baseUrl.replace(/\/$/, '') + path;
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+      'app_token': token, // NEWPOWER 可能用 header 帶 token
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.json();
+}
+
+// ── 客戶搜尋 ─────────────────────────────────
+async function searchCustomerAPI(keyword) {
+  if (!apiConfig.baseUrl || !apiConfig.sysIdCustomer) return null;
+  try {
+    const path = apiConfig.customerPath.replace('{keyword}', encodeURIComponent(keyword));
+    const data = await apiCall(path, apiConfig.sysIdCustomer);
+    return Array.isArray(data) ? data : (data.data || data.customers || []);
+  } catch(e) {
+    console.warn('客戶 API 失敗，使用本地資料:', e.message);
+    return null;
+  }
+}
+
+// ── 商品查詢（混合模式）────────────────────────
+function loadProductCache() {
+  try {
+    const saved = localStorage.getItem(PRODUCT_CACHE_KEY);
+    if (saved) productCache = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function saveProductCache() {
+  try { localStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify(productCache)); } catch(e) {}
+}
+
+async function queryProduct(barcode) {
+  if (productCache[barcode]) return productCache[barcode];
+  if (mockProducts[barcode]) return mockProducts[barcode];
+  if (apiConfig.baseUrl && apiConfig.sysIdProduct) {
+    try {
+      const path = apiConfig.productPath.replace('{barcode}', encodeURIComponent(barcode));
+      const data = await apiCall(path, apiConfig.sysIdProduct);
+      const product = {
+        name: data.name || data.productName || data.itemName || '未知商品',
+        code: data.code || data.productCode || data.itemCode || barcode,
+      };
+      productCache[barcode] = product;
+      saveProductCache();
+      refreshCacheStatus();
+      return product;
+    } catch(e) {
+      console.warn('商品 API 失敗:', e.message);
+    }
+  }
+  return null;
+}
+
+function refreshCacheStatus() {
+  const count = Object.keys(productCache).length;
+  const el = document.getElementById('cache-count');
+  if (el) el.textContent = count;
+}
+
+// ── 退貨單送出 ────────────────────────────────
+async function submitToERP(order) {
+  if (!apiConfig.baseUrl || !apiConfig.sysIdReturn) throw new Error('尚未設定退貨 API');
+  return await apiCall(apiConfig.returnPath, apiConfig.sysIdReturn, 'POST', order);
+}
+
+// ── 端點測試 ──────────────────────────────────
+async function testApiEndpoint(target) {
+  const resultEl = document.getElementById('result-' + target);
+  resultEl.className = 'api-test-result ing';
+  resultEl.textContent = '測試中...';
+
+  const sysIdMap = { customer: apiConfig.sysIdCustomer, product: apiConfig.sysIdProduct, return: apiConfig.sysIdReturn };
+  const sysId = sysIdMap[target];
+  if (!sysId) {
+    resultEl.className = 'api-test-result err';
+    resultEl.textContent = '✗ 請先填寫此功能的 sys_id';
+    return;
+  }
+
+  const token = await getToken(sysId);
+  if (!token) {
+    resultEl.className = 'api-test-result err';
+    resultEl.textContent = '✗ 無法取得 Token，請確認統編、帳密與 sys_id';
+    return;
+  }
+
+  try {
+    let path = '';
+    if (target === 'customer') path = apiConfig.customerPath.replace('{keyword}', '測試');
+    if (target === 'product')  path = apiConfig.productPath.replace('{barcode}', '0000000000000');
+    if (target === 'return') {
+      resultEl.className = 'api-test-result ok';
+      resultEl.textContent = '✓ Token 取得成功，端點路徑已設定';
+      return;
+    }
+    const data = await apiCall(path, sysId);
+    resultEl.className = 'api-test-result ok';
+    resultEl.textContent = '✓ 連線成功，回傳 ' + (Array.isArray(data) ? data.length + ' 筆資料' : JSON.stringify(data).substring(0, 80) + '...');
+  } catch(e) {
+    resultEl.className = 'api-test-result err';
+    resultEl.textContent = '✗ 失敗：' + e.message;
+  }
+}
+
 window.addEventListener('online', () => { document.getElementById('offline-banner').style.display = 'none'; });
 window.addEventListener('offline', () => { document.getElementById('offline-banner').style.display = 'flex'; });
 
@@ -935,6 +1328,25 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('tab-history').addEventListener('click', () => switchTab('history'));
   document.getElementById('tab-drafts').addEventListener('click', () => switchTab('drafts'));
   document.getElementById('admin-tab').addEventListener('click', () => switchTab('admin'));
+  document.getElementById('api-tab').addEventListener('click', () => switchTab('api'));
+
+  // API 設定
+  document.getElementById('btn-save-api').addEventListener('click', saveApiSettings);
+  document.getElementById('btn-refresh-token').addEventListener('click', refreshToken);
+  document.getElementById('btn-clear-cache').addEventListener('click', () => {
+    if (!confirm('確定清除所有商品快取？')) return;
+    productCache = {};
+    localStorage.removeItem(PRODUCT_CACHE_KEY);
+    refreshCacheStatus();
+    document.getElementById('cache-updated').textContent = '已清除';
+  });
+  document.querySelectorAll('.api-test-btn').forEach(btn => {
+    btn.addEventListener('click', () => testApiEndpoint(btn.dataset.target));
+  });
+
+  // 初始化
+  loadProductCache();
+  loadApiSettings();
 
   document.getElementById('customer-input').addEventListener('input', e => searchCustomer(e.target.value));
   document.getElementById('customer-search-btn').addEventListener('click', () => searchCustomer(document.getElementById('customer-input').value));
